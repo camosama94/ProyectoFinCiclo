@@ -1,0 +1,75 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Registro{% endblock %}
+
+{% block body %}
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4 auth-container p-4">
+            <div class="py-3">
+                <h1 class="h3 mb-4 text-center" style="color: var(--primary)">LiveStats</h1>
+                <h2 class="h4 mb-4 font-weight-normal text-center">Crear nueva cuenta</h2>
+
+                <form method="post" action="{{ path('app_register') }}" class="needs-validation" novalidate>
+                    {# Token CSRF (imprescindible en Symfony) #}
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('register') }}">
+
+                    {# Campo Email #}
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" id="email" name="email" class="form-control"
+                               required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$"
+                               value="{{ last_username|default('') }}">
+                        <div class="invalid-feedback">
+                            Por favor ingresa un email válido
+                        </div>
+                    </div>
+
+                    {# Contraseña #}
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Contraseña</label>
+                        <input type="password" id="password" name="password" class="form-control"
+                               required minlength="6">
+                        <div class="invalid-feedback">
+                            Mínimo 6 caracteres
+                        </div>
+                    </div>
+
+                    {# Términos y condiciones #}
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" id="terms" name="terms" class="form-check-input" required>
+                        <label for="terms" class="form-check-label">Acepto los términos</label>
+                        <div class="invalid-feedback">
+                            Debes aceptar los términos
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 mb-3">
+                        <button type="submit" class="btn btn-custom btn-lg">
+                            Registrarse
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Validación del formulario del lado del cliente
+        (function () {
+            'use strict'
+
+            const forms = document.querySelectorAll('.needs-validation')
+
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        })()
+    </script>
+{% endblock %}

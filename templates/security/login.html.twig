@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Log in!{% endblock %}
+
+{% block body %}
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4 auth-container p-4">
+            <form method="post" class="py-3">
+                {% if error %}
+                    <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                {% endif %}
+
+                {% for msg in app.flashes('error') %}
+                    <div class="alert alert-danger">{{ msg }}</div>
+                {% endfor %}
+
+
+                {% if app.user %}
+                    <div class="mb-3 text-center">
+                        Ya has iniciado sesión como {{ app.user.userIdentifier }},
+                        <a href="{{ path('app_logout') }}" class="text-primary">Cerrar sesión</a>
+                    </div>
+                {% endif %}
+
+                <h1 class="h3 mb-4 text-center" style="color: var(--primary)">LiveStats</h1>
+                <h2 class="h4 mb-4 font-weight-normal text-center">Inicia sesión</h2>
+
+                <div class="mb-3">
+                    <label for="inputEmail" class="form-label">Email</label>
+                    <input type="email" value="{{ last_username }}" name="email" id="inputEmail"
+                           class="form-control" autocomplete="email" required autofocus>
+                </div>
+
+                <div class="mb-3">
+                    <label for="inputPassword" class="form-label">Contraseña</label>
+                    <input type="password" name="password" id="inputPassword"
+                           class="form-control" autocomplete="current-password" required>
+                </div>
+
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="rememberMe" name="_remember_me">
+                    <label class="form-check-label" for="rememberMe">Recuérdame</label>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button class="btn btn-custom btn-lg" type="submit">
+                        Iniciar sesión
+                    </button>
+                </div>
+
+                <div class="mt-3 text-center">
+                    <a href="{{ path('app_register') }}" class="text-primary">¿No tienes cuenta? Regístrate</a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

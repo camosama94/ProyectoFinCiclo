@@ -11,11 +11,13 @@
         "doctrine/doctrine-bundle": "^2.14",
         "doctrine/doctrine-migrations-bundle": "^3.4",
         "doctrine/orm": "^3.3",
+        "symfony/apache-pack": "^1.0",
         "symfony/console": "7.2.*",
         "symfony/dotenv": "7.2.*",
         "symfony/flex": "^2",
         "symfony/form": "7.2.*",
         "symfony/framework-bundle": "7.2.*",
+        "symfony/routing": "7.2.*",
         "symfony/runtime": "7.2.*",
         "symfony/security-bundle": "7.2.*",
         "symfony/stimulus-bundle": "^2.23",
@@ -79,7 +81,7 @@
     },
     "require-dev": {
         "symfony/debug-bundle": "7.2.*",
-        "symfony/maker-bundle": "^1.62",
+        "symfony/maker-bundle": "*",
         "symfony/stopwatch": "7.2.*",
         "symfony/web-profiler-bundle": "7.2.*"
     }
