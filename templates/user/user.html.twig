@@ -47,16 +47,7 @@
 
     <div class="contenido">
         <div id="sidebar">
-            <a href="#equipos" id="btn-equipos" data-url="{{ path('tabla_equipos') }}" >Equipos</a>
-            <a href="#jugadores" id="btn-jugadores" data-url="{{ path('tabla_jugadores') }}" >Jugadores</a>
-            <a href="#partidos" id="btn-partidos" data-url="{{ path('tabla_partidos') }}" >Partidos</a>
-            <div>
-                <a href="#usuarios" id="btn-usuarios" data-url="{{ path('tabla_usuarios') }}" >Usuarios</a>
-                {% if peticionesPendientes|length != 0 %}
-                    <div style="color: red">{{ peticionesPendientes|length }} peticion/es pendiente/s</div>
-                {% endif %}
-            </div>
-
+            <a href="#datos" id="btn-datos" data-url="{{ path('form_datos') }}" >Mis datos</a>
         </div>
 
 
@@ -70,14 +61,10 @@
         $(document).ready(function () {
             function cargarContenidoDesdeHash() {
                 const hash = window.location.hash.substring(1); // elimina el '#'
-                if (hash === 'equipos') {
-                    $('#btn-equipos').trigger('click');
+                if (hash === 'datos') {
+                    $('#btn-datos').trigger('click');
                 } else if (hash === 'jugadores') {
                     $('#btn-jugadores').trigger('click');
-                } else if (hash === 'partidos') {
-                    $('#btn-partidos').trigger('click');
-                } else if (hash === 'usuarios') {
-                    $('#btn-usuarios').trigger('click');
                 }
 
             }

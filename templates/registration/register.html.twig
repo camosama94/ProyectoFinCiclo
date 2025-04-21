@@ -9,52 +9,50 @@
                 <h1 class="h3 mb-4 text-center" style="color: var(--primary)">LiveStats</h1>
                 <h2 class="h4 mb-4 font-weight-normal text-center">Crear nueva cuenta</h2>
 
-                <form method="post" action="{{ path('app_register') }}" class="needs-validation" novalidate>
-                    {# Token CSRF (imprescindible en Symfony) #}
-                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('register') }}">
+                {{ form_start(registrationForm, {
+                    attr: {
+                        class: 'needs-validation',
+                        novalidate: 'novalidate'
+                    }
+                }) }}
 
-                    {# Campo Email #}
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" id="email" name="email" class="form-control"
-                               required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$"
-                               value="{{ last_username|default('') }}">
-                        <div class="invalid-feedback">
-                            Por favor ingresa un email válido
-                        </div>
-                    </div>
+                <div class="mb-3">
+                    {{ form_label(registrationForm.username) }}
+                    {{ form_widget(registrationForm.username, { attr: { class: 'form-control', required: true } }) }}
+                    {{ form_errors(registrationForm.username) }}
+                </div>
 
-                    {# Contraseña #}
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Contraseña</label>
-                        <input type="password" id="password" name="password" class="form-control"
-                               required minlength="6">
-                        <div class="invalid-feedback">
-                            Mínimo 6 caracteres
-                        </div>
-                    </div>
+                <div class="mb-3">
+                    {{ form_label(registrationForm.email) }}
+                    {{ form_widget(registrationForm.email, { attr: { class: 'form-control', required: true } }) }}
+                    {{ form_errors(registrationForm.email) }}
+                </div>
 
-                    {# Términos y condiciones #}
-                    <div class="mb-3 form-check">
-                        <input type="checkbox" id="terms" name="terms" class="form-check-input" required>
-                        <label for="terms" class="form-check-label">Acepto los términos</label>
-                        <div class="invalid-feedback">
-                            Debes aceptar los términos
-                        </div>
-                    </div>
+                <div class="mb-3">
+                    {{ form_label(registrationForm.plainPassword) }}
+                    {{ form_widget(registrationForm.plainPassword, { attr: { class: 'form-control', required: true } }) }}
+                    {{ form_errors(registrationForm.plainPassword) }}
+                </div>
 
-                    <div class="d-grid gap-2 mb-3">
-                        <button type="submit" class="btn btn-custom btn-lg">
-                            Registrarse
-                        </button>
-                    </div>
-                </form>
+                <div class="mb-3 form-check">
+                    {{ form_widget(registrationForm.agreeTerms, { attr: { class: 'form-check-input', required: true } }) }}
+                    {{ form_label(registrationForm.agreeTerms, null, { label_attr: { class: 'form-check-label' } }) }}
+                    {{ form_errors(registrationForm.agreeTerms) }}
+                </div>
+
+                <div class="d-grid gap-2 mb-3">
+                    <button type="submit" class="btn btn-custom btn-lg">
+                        Registrarse
+                    </button>
+                </div>
+
+                {{ form_end(registrationForm) }}
             </div>
         </div>
     </div>
 
     <script>
-        // Validación del formulario del lado del cliente
+        // Validación del formulario del lado del cliente (Bootstrap)
         (function () {
             'use strict'
 

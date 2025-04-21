@@ -1,0 +1,138 @@
+<table id="tabla" class="display">
+    <thead>
+    <tr>
+        <th>Nombre de usuario</th>
+        <th>Email</th>
+        <th>Roles</th>
+        <th>Solicitudes</th>
+        <th>Acciones</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for usuario in usuarios %}
+        {% if usuario.id != app.user.id %}
+            <tr>
+                <td>{{ usuario.username }}</td>
+                <td>{{ usuario.email }}</td>
+                <td>
+                    {% for rol in usuario.roles %}
+                        {{ rol }} /
+                    {% endfor %}
+                </td>
+
+                <td>
+                    {% set peticionPendiente = usuario.peticionRol|filter(r => r.status.value == 'PENDING')|first %}
+
+
+                    {% if peticionPendiente %}
+                        {{ peticionPendiente.rol }}
+                        <button class="btn btn-success btn-approve" data-id="{{ peticionPendiente.id }}">Aprobar</button>
+                        <button class="btn btn-danger btn-reject" data-id="{{ peticionPendiente.id }}">Rechazar</button>
+                    {% else %}
+                        <span class="text-muted">Sin solicitudes</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <button type="button" class="btn btn-danger btn-borrar-usuario" data-id="{{ usuario.id }}">
+                        <i class="bi bi-pencil-square"></i>
+                        Borrar
+                    </button>
+                </td>
+
+            </tr>
+        {% endif %}
+    {% endfor %}
+    </tbody>
+</table>
+
+
+<script>
+    // Asocia el evento solo una vez al cargar la página
+    $(document).on('click', '.btn-role-stat-on', function () {
+        const id = $(this).data('id');
+
+
+        // Evita que el evento se registre varias veces
+        if (!$(this).data('clicked')) {
+            $(this).data('clicked', true); // Marca el botón como "ya clickeado"
+
+            if (confirm("¿Estás seguro de que quieres dar el rol de Estadista a este usuario?")) {
+                $.ajax({
+                    url: `/usuario/${id}/on`,
+                    method: 'PUT',
+                    success: function (data) {
+                        $('#btn-usuarios').trigger('click');
+                        const alerta = $('#alerta-modal-editar');
+                        alerta.removeClass('d-none');
+                        setTimeout(() => alerta.addClass('d-none'), 3000);
+                    },
+                    error: function (xhr) {
+                        console.error("Error al dar rol al usuario:", xhr.responseText);
+                    },
+                    complete: function () {
+                        // Vuelve a permitir clics en el botón después de la respuesta AJAX
+                        $(this).data('clicked', false);
+                    }
+                });
+            }
+        }
+    });
+
+    $(document).on('click', '.btn-role-stat-off', function () {
+        const id = $(this).data('id');
+
+        // Evita que el evento se registre varias veces
+        if (!$(this).data('clicked')) {
+            $(this).data('clicked', true); // Marca el botón como "ya clickeado"
+
+            if (confirm("¿Estás seguro de que quieres quitar el rol de Estadista a este usuario?")) {
+                $.ajax({
+                    url: `/usuario/${id}/off`,
+                    method: 'PUT',
+                    success: function (data) {
+                        $('#btn-usuarios').trigger('click');
+                        const alerta = $('#alerta-modal-editar');
+                        alerta.removeClass('d-none');
+                        setTimeout(() => alerta.addClass('d-none'), 3000);
+                    },
+                    error: function (xhr) {
+                        console.error("Error al quitar rol al usuario:", xhr.responseText);
+                    },
+                    complete: function () {
+                        // Vuelve a permitir clics en el botón después de la respuesta AJAX
+                        $(this).data('clicked', false);
+                    }
+                });
+            }
+        }
+    });
+
+    $(document).on('click', '.btn-borrar-usuario', function () {
+        const id = $(this).data('id');
+
+        if (confirm("¿Estás seguro de que quieres borrar este usuario?")) {
+            $.ajax({
+                url: `/usuario/${id}`,
+                method: 'DELETE',
+                success: function (data) {
+                    $('#btn-partidos').trigger('click');
+                    const alerta = $('#alerta-modal-editar');
+                    alerta.removeClass('d-none');
+                    setTimeout(() => alerta.addClass('d-none'), 3000);
+                },
+                error: function (xhr) {
+                    console.error("Error al borrar equipo:", xhr.responseText);
+                }
+            });
+        }
+    });
+
+    $('.btn-approve').on('click', function(){
+        const id = $(this).data('id');
+        $.post(`/admin/peticion/${id}/aprovar`, ()=>location.reload());
+    });
+    $('.btn-reject').on('click', function(){
+        const id = $(this).data('id');
+        $.post(`/admin/peticion/${id}/rechazar`, ()=>location.reload());
+    });
+</script>

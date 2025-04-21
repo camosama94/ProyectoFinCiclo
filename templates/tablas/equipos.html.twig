@@ -1,0 +1,80 @@
+<table id="tabla" class="display">
+    <thead>
+    <tr>
+        <th>Nombre</th>
+        <th>Entrenador</th>
+        <th>Acciones</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for equipo in equipos %}
+        <tr>
+            <td>{{ equipo.nombre }}</td>
+            <td>{{ equipo.entrenador }}</td>
+            <td>
+                <button type="button" class="btn btn-primary btn-editar-equipo" data-id="{{ equipo.id }}">
+                    <i class="bi bi-pencil-square"></i>
+                    Editar
+                </button>
+                <button type="button" class="btn btn-danger btn-borrar-equipo" data-id="{{ equipo.id }}">
+                    <i class="bi bi-x-square"></i>
+                    Borrar
+                </button>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+
+</table>
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCrearEquipo">
+    Crear Equipo
+</button>
+
+<script>
+    $(document).on('click', '.btn-editar-equipo', function () {
+        const id = $(this).data('id');
+
+        $.ajax({
+            url: `/equipo/${id}`,
+            method: 'GET',
+            success: function (data) {
+                console.log(data.id);
+
+                // Asegurarse que se llenan bien los campos ANTES de mostrar el modal
+                $('#equipo-id').val(data.id);
+                $('#nombre-equipo').val(data.nombre);
+                $('#nombre-entrenador').val(data.entrenador);
+
+
+                // Mostrar el modal después de rellenar
+                $('#modalEditarEquipo').modal('show');
+            },
+            error: function (xhr) {
+                console.error("Error al cargar datos:", xhr.responseText);
+            }
+        });
+    });
+
+    $(document).on('click', '.btn-borrar-equipo', function () {
+        const id = $(this).data('id');
+
+        if (confirm("¿Estás seguro de que quieres borrar este equipo?")) {
+            $.ajax({
+                url: `/equipo/${id}`,
+                method: 'DELETE',
+                success: function (data) {
+                    $('#btn-equipos').trigger('click');
+                    const alerta = $('#alerta-modal-editar');
+                    alerta.removeClass('d-none');
+                    setTimeout(() => alerta.addClass('d-none'), 3000);
+                },
+                error: function (xhr) {
+                    console.error("Error al borrar equipo:", xhr.responseText);
+                }
+            });
+        }
+    });
+</script>
+{% include 'forms/equipoNuevo.html.twig' %}
+{% include 'forms/equipoEdit.html.twig' %}
+

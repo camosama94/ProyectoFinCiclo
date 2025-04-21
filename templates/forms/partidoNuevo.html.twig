@@ -1,0 +1,94 @@
+<div class="modal fade" id="modalCrearPartido" tabindex="-1" aria-labelledby="modalCrearPartido" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="titulomodalCrearPartido">Crear Partido</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <div class="modal-body">
+                <form id="formCrearPartido" action="{{ path('crear_partido') }}" method="post">
+
+                    <div class="mb-3">
+                        <label for="nombreEquipoLocal" class="form-label" >Selecciona Equipo Local</label>
+                        <select name="nombreEquipoLocal" id="nombreEquipoLocal"class="form-control">
+                            <option value="">Seleccione un equipo</option>
+                            {% for equipo in equiposLocal %}
+                                <option value="{{ equipo.id }}">{{ equipo.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="nombreEquipoLocal" class="form-label" >Selecciona Equipo Visitante</label>
+                        <select name="nombreEquipoVisitante" id="nombreEquipovisitante"class="form-control">
+                            <option value="">Seleccione un equipo</option>
+                            {% for equipo in equiposVisitante %}
+                                <option value="{{ equipo.id }}">{{ equipo.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="fecha" class="form-label">Fecha/Hora</label>
+                        <input type="datetime-local" name="fecha" id="fecha" class="form-control">
+                        <label for="localizacion" class="form-label">Localizacion</label>
+                        <input type="text" name="localizacion" id="localizacion" class="form-control">
+                        <label for="nombreEquipoLocal" class="form-label" >Asigna a un estadista</label>
+                        <select name="estadista" id="estadista"class="form-control">
+                            <option value="">Seleccione un estadista</option>
+                            {% for estadista in users %}
+                                <option value="{{ estadista.id }}">{{ estadista.email }}</option>
+                            {% endfor %}
+                        </select>
+
+                    </div>
+
+                    <button type="submit" class="btn btn-success">Guardar</button>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $('#nombreEquipoLocal').on('change', function () {
+            const seleccionado = $(this).val();
+
+            $('#nombreEquipovisitante option').prop('disabled', false);
+
+            if (seleccionado) {
+
+                $('#nombreEquipovisitante option').each(function () {
+                    if ($(this).val() === seleccionado) {
+                        $(this).prop('disabled', true);
+                    }
+                });
+
+
+                if ($('#nombreEquipovisitante').val() === seleccionado) {
+                    $('#nombreEquipovisitante').val('');
+                }
+            }
+        });
+
+        $('#nombreEquipovisitante').on('change', function () {
+            const seleccionado = $(this).val();
+
+            $('#nombreEquipoLocal option').prop('disabled', false);
+
+            if (seleccionado) {
+                $('#nombreEquipoLocal option').each(function () {
+                    if ($(this).val() === seleccionado) {
+                        $(this).prop('disabled', true);
+                    }
+                });
+
+                if ($('#nombreEquipoLocal').val() === seleccionado) {
+                    $('#nombreEquipoLocal').val('');
+                }
+            }
+        });
+    });
+</script>
+

@@ -1,0 +1,132 @@
+<div class="modal fade" id="modalEditarPartido" tabindex="-1" aria-labelledby="modalEditarPartidoLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="titulomodalEditarPartido">Editar Partido</h5>
+                <button type="button" class="btn-close cerrar-modal-partido" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="alert alert-success d-none" id="alerta-modal-editar" role="alert">
+                    Partido actualizado correctamente.
+                </div>
+                <form id="formEditarPartido" method="post">
+                    <input type="hidden" id="partido-id" name="partido-id">
+
+                    <div class="mb-3">
+                        <label for="EquipoLocal" class="form-label" >Selecciona Equipo Local</label>
+                        <select name="EquipoLocal" id="EquipoLocal"class="form-control">
+                            <option value="">Seleccione un equipo</option>
+                            {% for equipo in equiposLocal %}
+                                <option value="{{ equipo.id }}">{{ equipo.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="EquipoVisitante" class="form-label" >Selecciona Equipo Visitante</label>
+                        <select name="EquipoVisitante" id="Equipovisitante"class="form-control">
+                            <option value="">Seleccione un equipo</option>
+                            {% for equipo in equiposVisitante %}
+                                <option value="{{ equipo.id }}">{{ equipo.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="fecha-sel" class="form-label">Fecha/Hora</label>
+                        <input type="datetime-local" name="fecha-sel" id="fecha-sel" class="form-control">
+                        <label for="localizacion-sel" class="form-label">Localizacion</label>
+                        <input type="text" name="localizacion-sel" id="localizacion-sel" class="form-control">
+                        <label for="nombreEquipoLocal" class="form-label" >Asigna a un estadista</label>
+                        <select name="estadista-sel" id="estadista-sel"class="form-control">
+                            <option value="">Seleccione un estadista</option>
+                            {% for estadista in users %}
+                                <option value="{{ estadista.id }}">{{ estadista.email }}</option>
+                            {% endfor %}
+                        </select>
+
+                    </div>
+
+                    <button type="submit" class="btn btn-success">Guardar</button>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary cerrar-modal-partido" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    $('#formEditarPartido').submit(function (e) {
+        e.preventDefault();
+
+        const id = $('#partido-id').val();
+        const datos = {
+            EquipoLocal: $('#EquipoLocal').val(),
+            EquipoVisitante: $('#Equipovisitante').val(),
+            fecha: $('#fecha-sel').val(),
+            localizacion: $('#localizacion-sel').val(),
+            estadista: $('#estadista-sel').val(),
+
+
+        };
+
+        $.ajax({
+            url: `/partido/${id}/edit`,
+            type: 'PUT',
+            data: datos,
+            success: function () {
+                const alerta = $('#alerta-modal-editar');
+                alerta.removeClass('d-none');
+            },
+            error: function () {
+                alert('Error al editar el equipo.');
+            }
+        });
+    });
+
+    $('.cerrar-modal-partido').on('click', function () {
+        $('#btn-partidos').trigger('click');
+        $('#alerta-modal-editar').addClass('d-none');
+    });
+
+
+    $(document).ready(function () {
+        $('#EquipoLocal').on('change', function () {
+            const seleccionado = $(this).val();
+
+            $('#Equipovisitante option').prop('disabled', false);
+
+            if (seleccionado) {
+
+                $('#Equipovisitante option').each(function () {
+                    if ($(this).val() === seleccionado) {
+                        $(this).prop('disabled', true);
+                    }
+                });
+
+
+                if ($('#Equipovisitante').val() === seleccionado) {
+                    $('#Equipovisitante').val('');
+                }
+            }
+        });
+
+        $('#Equipovisitante').on('change', function () {
+            const seleccionado = $(this).val();
+
+            $('#EquipoLocal option').prop('disabled', false);
+
+            if (seleccionado) {
+                $('#EquipoLocal option').each(function () {
+                    if ($(this).val() === seleccionado) {
+                        $(this).prop('disabled', true);
+                    }
+                });
+
+                if ($('#EquipoLocal').val() === seleccionado) {
+                    $('#EquipoLocal').val('');
+                }
+            }
+        });
+    });
+</script>

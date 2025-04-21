@@ -42,9 +42,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Partido::class, mappedBy: 'idUsuario')]
     private Collection $partidos;
 
+    #[ORM\Column(length: 255)]
+    private ?string $username = null;
+
+    /**
+     * @var Collection<int, PeticionRol>
+     */
+    #[ORM\OneToMany(targetEntity: PeticionRol::class, mappedBy: 'usuario')]
+    private Collection $peticionRoles;
+
     public function __construct()
     {
         $this->partidos = new ArrayCollection();
+        $this->peticionRoles = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -146,6 +156,48 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($partido->getIdUsuario() === $this) {
                 $partido->setIdUsuario(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getUsername(): ?string
+    {
+        return $this->username;
+    }
+
+    public function setUsername(string $username): static
+    {
+        $this->username = $username;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PeticionRol>
+     */
+    public function getPeticionRol(): Collection
+    {
+        return $this->peticionRoles;
+    }
+
+    public function addPeticionRol(PeticionRol $peticionRole): static
+    {
+        if (!$this->peticionRoles->contains($peticionRole)) {
+            $this->peticionRoles->add($peticionRole);
+            $peticionRole->setUsuario($this);
+        }
+
+        return $this;
+    }
+
+    public function removePeticionRole(PeticionRol $peticionRole): static
+    {
+        if ($this->peticionRoles->removeElement($peticionRole)) {
+            // set the owning side to null (unless already changed)
+            if ($peticionRole->getUsuario() === $this) {
+                $peticionRole->setUsuario(null);
             }
         }
 

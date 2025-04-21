@@ -6,6 +6,7 @@ use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\IsTrue;
@@ -17,6 +18,19 @@ class RegistrationFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
+            ->add('username', TextType::class, [
+                'label' => 'Nombre de usuario',
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'Por favor ingresa un nombre de usuario',
+                    ]),
+                    new Length([
+                        'min' => 3,
+                        'minMessage' => 'Tu nombre de usuario debe tener al menos {{ limit }} caracteres',
+                        'max' => 180,
+                    ]),
+                ],
+            ])
             ->add('email')
             ->add('agreeTerms', CheckboxType::class, [
                 'mapped' => false,

@@ -1,0 +1,88 @@
+<table id="tabla" class="display">
+    <thead>
+    <tr>
+        <th>Equipo Local</th>
+        <th>Equipo Visitante</th>
+        <th>Fecha</th>
+        <th>Localizacion</th>
+        <th>Acciones</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for partido in partidos %}
+        <tr>
+            <td>{{ partido.idEquipoLocal.nombre }}</td>
+            <td>{{ partido.idEquipoVisitante.nombre }}</td>
+            <td>{{ partido.localizacion }}</td>
+            <td>{{ partido.fecha|date('Y-m-d H:i') }}</td>
+            <td>
+                <button type="button" class="btn btn-primary btn-editar-partido" data-id="{{ partido.id }}">
+                    <i class="bi bi-pencil-square"></i>
+                    Editar
+                </button>
+                <button type="button" class="btn btn-danger btn-borrar-partido" data-id="{{ partido.id }}">
+                    <i class="bi bi-x-square"></i>
+                    Borrar
+                </button>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCrearPartido">
+    Crear Partido
+</button>
+
+<script>
+    $(document).on('click', '.btn-editar-partido', function () {
+        const id = $(this).data('id');
+
+        $.ajax({
+            url: `/partido/${id}`,
+            method: 'GET',
+            success: function (data) {
+                console.log(data.fecha)
+
+
+                $('#partido-id').val(data.id);
+                $('#EquipoLocal').val(data.equipoLocal);
+                $('#Equipovisitante').val(data.equipoVisitante);
+                let fechaOriginal = data.fecha.date;
+                let fechaFormateada = fechaOriginal.replace(' ', 'T').substring(0, 16);
+                $('#fecha-sel').val(fechaFormateada);
+                $('#localizacion-sel').val(data.localizacion);
+                $('#estadista-sel').val(data.estadista);
+
+
+
+                $('#modalEditarPartido').modal('show');
+            },
+            error: function (xhr) {
+                console.error("Error al cargar datos:", xhr.responseText);
+            }
+        });
+    });
+
+    $(document).on('click', '.btn-borrar-partido', function () {
+        const id = $(this).data('id');
+
+        if (confirm("¿Estás seguro de que quieres borrar este partido?")) {
+            $.ajax({
+                url: `/partido/${id}`,
+                method: 'DELETE',
+                success: function (data) {
+                    $('#btn-partidos').trigger('click');
+                    const alerta = $('#alerta-modal-editar');
+                    alerta.removeClass('d-none');
+                    setTimeout(() => alerta.addClass('d-none'), 3000);
+                },
+                error: function (xhr) {
+                    console.error("Error al borrar jugador:", xhr.responseText);
+                }
+            });
+        }
+    });
+</script>
+
+{% include 'forms/partidoNuevo.html.twig' %}
+{% include 'forms/partidoEdit.html.twig' %}

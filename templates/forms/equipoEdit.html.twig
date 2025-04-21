@@ -1,0 +1,65 @@
+<div class="modal fade" id="modalEditarEquipo" tabindex="-1" aria-labelledby="modalEditarEquipoLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="titulomodalEditarEquipo">Editar Equipo</h5>
+                <button type="button" class="btn-close cerrar-modal-equipo" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="alert alert-success d-none" id="alerta-modal-editar" role="alert">
+                    Equipo actualizado correctamente.
+                </div>
+                <form id="formEditarEquipo" method="post">
+                    <input type="hidden" id="equipo-id" name="equipo-id">
+
+                    <div class="mb-3">
+                        <label for="nombre-equipo" class="form-label">Nombre del Equipo</label>
+                        <input type="text" name="nombre-equipo" class="form-control" id="nombre-equipo" required>
+                        <label for="nombre-entrenador" class="form-label">Nombre del Entrenador</label>
+                        <input type="text" name="nombre-entrenador" class="form-control" id="nombre-entrenador" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-success">Guardar</button>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary cerrar-modal-equipo" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    $('#formEditarEquipo').submit(function (e) {
+        e.preventDefault();
+
+        const id = $('#equipo-id').val();
+        const datos = {
+            nombreEquipo: $('#nombre-equipo').val(),
+            nombreEntrenador: $('#nombre-entrenador').val()
+        };
+
+        $.ajax({
+            url: `/equipo/${id}/edit`,
+            type: 'PUT',
+            data: datos,
+            success: function () {
+                const alerta = $('#alerta-modal-editar');
+                alerta.removeClass('d-none');
+            },
+            error: function () {
+                alert('Error al editar el equipo.');
+            }
+        });
+    });
+
+    $('.cerrar-modal-equipo').on('click', function () {
+        $('#btn-equipos').trigger('click');
+        $('#alerta-modal-editar').addClass('d-none');
+    });
+
+</script>

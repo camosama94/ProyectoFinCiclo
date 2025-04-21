@@ -1,0 +1,49 @@
+<div class="modal fade" id="modalCrearJugador" tabindex="-1" aria-labelledby="modalCrearJugador" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="titulomodalCrearJugador">Crear Jugador</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <div class="modal-body">
+                <form id="formCrearJugador" action="{{ path('crear_jugador') }}" method="post">
+
+                    <div class="mb-3">
+                        <label for="nombreJugador" class="form-label">Nombre del Jugador</label>
+                        <input type="text" name="nombreJugador" class="form-control" id="nombreJugador" required>
+                        <label for="nombreEquipo" class="form-label" >Selecciona su Equipo</label>
+                        <select name="nombreEquipo" id="nombreEquipo"class="form-control">
+                            <option value="">Seleccione un equipo</option>
+                            {% for equipo in equipos %}
+                                <option value="{{ equipo.id }}">{{ equipo.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="posicion" class="form-label">Posicion</label>
+                        <select name="posicion" id="posicion" class="form-control">
+                            <option value="Base">Base</option>
+                            <option value="Escolta">Escolta</option>
+                            <option value="Alero">Alero</option>
+                            <option value="Ala-pivot">Ala-Pivot</option>
+                            <option value="Pivot">Pivot</option>
+                        </select>
+                        <label for="altura" class="form-label">Altura</label>
+                        <input type="number" name="altura" id="altura" min="1" step="0.01" class="form-control">
+                        <label for="dorsal" class="form-label">Dorsal</label>
+                        <input type="number" name="dorsal" id="dorsal" min="0" max="99" class="form-control">
+
+
+                    </div>
+
+                    <button type="submit" class="btn btn-success">Guardar</button>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+
+        </div>
+    </div>
+</div>

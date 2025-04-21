@@ -1,0 +1,88 @@
+<table id="tabla" class="display">
+    <thead>
+    <tr>
+        <th>Nombre</th>
+        <th>Equipo</th>
+        <th>Posicion</th>
+        <th>Altura</th>
+        <th>Dorsal</th>
+        <th>Acciones</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for jugador in jugadores %}
+        <tr>
+            <td>{{ jugador.nombre }}</td>
+            <td>{{ jugador.idEquipo.nombre }}</td>
+            <td>{{ jugador.posicion }}</td>
+            <td>{{ jugador.altura }}</td>
+            <td>{{ jugador.dorsal }}</td>
+            <td>
+                <button type="button" class="btn btn-primary btn-editar-jugador" data-id="{{ jugador.id }}">
+                    <i class="bi bi-pencil-square"></i>
+                    Editar
+                </button>
+                <button type="button" class="btn btn-danger btn-borrar-jugador" data-id="{{ jugador.id }}">
+                    <i class="bi bi-x-square"></i>
+                    Borrar
+                </button>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCrearJugador">
+    Crear Jugador
+</button>
+<script>
+    $(document).on('click', '.btn-editar-jugador', function () {
+        const id = $(this).data('id');
+
+        $.ajax({
+            url: `/jugador/${id}`,
+            method: 'GET',
+            success: function (data) {
+                console.log(data.posicion);
+
+                // Asegurarse que se llenan bien los campos ANTES de mostrar el modal
+                $('#jugador-id').val(data.id);
+                $('#nombre-jugador').val(data.nombre);
+                $('#nombre-equipo').val(data.equipo);
+                $('#posicion-id').val(data.posicion);
+                $('#altura-id').val(parseFloat(data.altura));
+                $('#dorsal-id').val(data.dorsal);
+
+
+                // Mostrar el modal después de rellenar
+                $('#modalEditarJugador').modal('show');
+            },
+            error: function (xhr) {
+                console.error("Error al cargar datos:", xhr.responseText);
+            }
+        });
+    });
+
+    $(document).on('click', '.btn-borrar-jugador', function () {
+        const id = $(this).data('id');
+
+        if (confirm("¿Estás seguro de que quieres borrar este jugador?")) {
+            $.ajax({
+                url: `/jugador/${id}`,
+                method: 'DELETE',
+                success: function (data) {
+                    $('#btn-jugadores').trigger('click');
+                    const alerta = $('#alerta-modal-editar');
+                    alerta.removeClass('d-none');
+                    setTimeout(() => alerta.addClass('d-none'), 3000);
+                },
+                error: function (xhr) {
+                    console.error("Error al borrar jugador:", xhr.responseText);
+                }
+            });
+        }
+    });
+</script>
+
+
+{% include 'forms/jugadorNuevo.html.twig' %}
+{% include 'forms/jugadorEdit.html.twig' %}
