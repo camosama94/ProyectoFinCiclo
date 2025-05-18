@@ -49,6 +49,10 @@ class Partido
     #[ORM\JoinColumn(nullable: false)]
     private ?User $idUsuario = null;
 
+    #[ORM\ManyToOne(inversedBy: 'partidos')]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Competicion $competicion = null;
+
     public function __construct()
     {
         $this->acciones = new ArrayCollection();
@@ -188,6 +192,18 @@ class Partido
     public function setIdUsuario(?User $idUsuario): static
     {
         $this->idUsuario = $idUsuario;
+
+        return $this;
+    }
+
+    public function getCompeticion(): ?Competicion
+    {
+        return $this->competicion;
+    }
+
+    public function setCompeticion(?Competicion $competicion): static
+    {
+        $this->competicion = $competicion;
 
         return $this;
     }

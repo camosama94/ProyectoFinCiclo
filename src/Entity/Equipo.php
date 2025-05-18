@@ -39,6 +39,10 @@ class Equipo
     #[ORM\OneToMany(targetEntity: Partido::class, mappedBy: 'idEquipoVisitante')]
     private Collection $partidosVisitante;
 
+    #[ORM\ManyToOne(inversedBy: 'equipos')]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Competicion $competicion = null;
+
     public function __construct()
     {
         $this->jugadores = new ArrayCollection();
@@ -161,6 +165,18 @@ class Equipo
                 $partidosVisitante->setIdEquipoVisitante(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getCompeticion(): ?Competicion
+    {
+        return $this->competicion;
+    }
+
+    public function setCompeticion(?Competicion $competicion): static
+    {
+        $this->competicion = $competicion;
 
         return $this;
     }

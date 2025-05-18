@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Competicion;
 use App\Entity\Equipo;
 use App\Entity\Jugador;
 use App\Entity\Partido;
@@ -10,16 +11,30 @@ use App\Entity\User;
 use App\Enum\EstadosPeticionesRol;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 
 class PruebaController extends AbstractController
 {
     #[Route('/pruebaAdmin', name: 'ruta_prueba')]
-    public function index(ManagerRegistry $doctrine): Response
+    public function index(ManagerRegistry $doctrine, Security $security): Response
     {
-        $peticionesPendientes = $doctrine->getRepository(PeticionRol::class)->findBy(['status' => EstadosPeticionesRol::PENDING]);
+        $usuario = $security->getUser();
+
+        $peticionesPendientes = $doctrine->getRepository(PeticionRol::class)
+            ->createQueryBuilder('pr')
+            ->join('pr.competicion', 'c')
+            ->where('pr.status = :estado')
+            ->andWhere('c.admin = :usuario')
+            ->setParameter('estado', EstadosPeticionesRol::PENDING)
+            ->setParameter('usuario', $usuario)
+            ->getQuery()
+            ->getResult();
+
         return $this->render('admin/admin.html.twig',['peticionesPendientes' => $peticionesPendientes]);
     }
 
@@ -28,10 +43,13 @@ class PruebaController extends AbstractController
     {
         $nombre = $request->request->get('nombreEquipo');
         $entrenador = $request->request->get('nombreEntrenador');
+        $idCompeticion = $request->request->get('competicion');
+        $competicion = $doctrine->getRepository(Competicion::class)->find($idCompeticion);
 
         $equipo = new Equipo();
         $equipo->setNombre($nombre);
         $equipo->setEntrenador($entrenador);
+        $equipo->setCompeticion($competicion);
 
         $entityManager = $doctrine->getManager();
         $entityManager->persist($equipo);
@@ -51,6 +69,7 @@ class PruebaController extends AbstractController
             'id' => $equipo->getId(),
             'nombre' => $equipo->getNombre(),
             'entrenador' => $equipo->getEntrenador(),
+            'competicion' => $equipo->getCompeticion()->getId()
         ]);
     }
 
@@ -59,8 +78,11 @@ class PruebaController extends AbstractController
     {
         $nombre = $request->request->get('nombreEquipo');
         $entrenador = $request->request->get('nombreEntrenador');
+        $competicionId = $request->request->get('competicionId');
+        $competicion = $doctrine->getRepository(Competicion::class)->find($competicionId);
         $equipo->setNombre($nombre);
         $equipo->setEntrenador($entrenador);
+        $equipo->setCompeticion($competicion);
         $entityManager = $doctrine->getManager();
         $entityManager->flush();
         return $this->redirect('/pruebaAdmin#equipos');
@@ -169,6 +191,8 @@ class PruebaController extends AbstractController
         $user = $doctrine->getRepository(User::class)->find($idUsuario);
         $fecha = new \DateTime($request->request->get('fecha'));
         $localizacion = $request->request->get('localizacion');
+        $idCompeticion = $request->request->get('competicion');
+        $competicion = $doctrine->getRepository(Competicion::class)->find($idCompeticion);
 
         $partido = new Partido();
         $partido->setIdEquipoLocal($local);
@@ -177,6 +201,7 @@ class PruebaController extends AbstractController
         $partido->setLocalizacion($localizacion);
         $partido->setActivo(false);
         $partido->setIdUsuario($user);
+        $partido->setCompeticion($competicion);
 
         $entityManager = $doctrine->getManager();
         $entityManager->persist($partido);
@@ -195,6 +220,7 @@ class PruebaController extends AbstractController
 
         return $this->json([
             'id' => $partido->getId(),
+            'competicion' => $partido->getCompeticion()->getId(),
             'equipoLocal' => $partido->getIdEquipoLocal()->getId(),
             'equipoVisitante' => $partido->getIdEquipoVisitante()->getId(),
             'localizacion' => $partido->getLocalizacion(),
@@ -260,6 +286,9 @@ class PruebaController extends AbstractController
             $usuario->setRoles($roles);
         }
 
+        $competicion = $peticion->getCompeticion();
+        $usuario->addCompeticioneEstadista($competicion);
+
         $peticion->setStatus(EstadosPeticionesRol::APPROVED);
         $entityManager->flush();
 
@@ -295,6 +324,69 @@ class PruebaController extends AbstractController
 
         $entityManager->flush();
         return $this->redirect('/pruebaAdmin#usuarios');
+    }
+
+    #[Route('/competicion/new', name: 'crear_competicion', methods: ['POST'])]
+    public function crearCompeticion(Request $request, ManagerRegistry $doctrine, TokenStorageInterface $tokenStorage): Response
+    {
+        $nombre = $request->request->get('nombreCompeticion');
+
+        $competicion = new Competicion();
+        $competicion->setNombre($nombre);
+
+        $usuario = $this->getUser();
+
+        if (!in_array('ROLE_ADMIN_LIGA', $usuario->getRoles())) {
+            $usuario->setRoles(array_merge($usuario->getRoles(), ['ROLE_ADMIN_LIGA']));
+        }
+
+        $competicion->setAdmin($usuario);
+
+        $entityManager = $doctrine->getManager();
+        $entityManager->persist($competicion);
+        $entityManager->flush();
+
+        $newToken = new UsernamePasswordToken($usuario, 'main', $usuario->getRoles());
+        $tokenStorage->setToken($newToken);
+
+
+        return $this->redirect('/pruebaAdmin#competiciones');
+
+    }
+
+    #[Route('/competicion/{id}', name: 'ver_competicion', methods: ['GET'])]
+    public function verCompeticion(Request $request, ManagerRegistry $doctrine): Response
+    {
+        $id = $request->get('id');
+        $entityManager = $doctrine->getManager();
+        $competicion = $entityManager->getRepository(Competicion::class)->find($id);
+        return $this->json([
+            'id' => $competicion->getId(),
+            'nombre' => $competicion->getNombre(),
+        ]);
+    }
+
+    #[Route('/competicion/{id}/edit', name: 'editar_competicion', methods: ['PUT'])]
+    public function editarCompeticion(Request $request, ManagerRegistry $doctrine, Competicion $competicion): Response
+    {
+
+        $nombre = $request->request->get('nombreCompeticion');
+        $competicion->setNombre($nombre);
+
+        $entityManager = $doctrine->getManager();
+        $entityManager->flush();
+        return $this->redirect('/pruebaAdmin#competiciones');
+    }
+
+    #[Route('/competicion/{id}', name: 'borrar_competicion', methods: ['DELETE'])]
+    public function borrarCompeticion(Request $request, ManagerRegistry $doctrine,): Response
+    {
+        $id = $request->get('id');
+        $entityManager = $doctrine->getManager();
+        $competicion = $entityManager->getRepository(Competicion::class)->find($id);
+        $entityManager->remove($competicion);
+        $entityManager->flush();
+        return $this->redirect('/pruebaAdmin#competiciones');
     }
 }
 

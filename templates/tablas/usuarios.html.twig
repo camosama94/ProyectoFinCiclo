@@ -9,6 +9,7 @@
     </tr>
     </thead>
     <tbody>
+    {# Usuarios asociados como estadistas #}
     {% for usuario in usuarios %}
         {% if usuario.id != app.user.id %}
             <tr>
@@ -19,18 +20,8 @@
                         {{ rol }} /
                     {% endfor %}
                 </td>
-
                 <td>
-                    {% set peticionPendiente = usuario.peticionRol|filter(r => r.status.value == 'PENDING')|first %}
-
-
-                    {% if peticionPendiente %}
-                        {{ peticionPendiente.rol }}
-                        <button class="btn btn-success btn-approve" data-id="{{ peticionPendiente.id }}">Aprobar</button>
-                        <button class="btn btn-danger btn-reject" data-id="{{ peticionPendiente.id }}">Rechazar</button>
-                    {% else %}
-                        <span class="text-muted">Sin solicitudes</span>
-                    {% endif %}
+                    <span class="text-muted">Sin solicitudes</span>
                 </td>
                 <td>
                     <button type="button" class="btn btn-danger btn-borrar-usuario" data-id="{{ usuario.id }}">
@@ -38,9 +29,31 @@
                         Borrar
                     </button>
                 </td>
-
             </tr>
         {% endif %}
+    {% endfor %}
+
+    {# Solicitudes pendientes #}
+    {% for peticion in peticionesPendientes %}
+        {% set u = peticion.usuario %}
+        <tr class="table-warning">
+            <td>{{ u.username }}</td>
+            <td>{{ u.email }}</td>
+            <td>
+                {% for rol in u.roles %}
+                    {{ rol }} /
+                {% endfor %}
+            </td>
+            <td>
+                {{ peticion.rol }}
+                <br>
+                <small>Comp: {{ peticion.competicion.nombre }}</small>
+            </td>
+            <td>
+                <button class="btn btn-success btn-approve" data-id="{{ peticion.id }}">Aprobar</button>
+                <button class="btn btn-danger btn-reject" data-id="{{ peticion.id }}">Rechazar</button>
+            </td>
+        </tr>
     {% endfor %}
     </tbody>
 </table>
@@ -129,7 +142,7 @@
 
     $('.btn-approve').on('click', function(){
         const id = $(this).data('id');
-        $.post(`/admin/peticion/${id}/aprovar`, ()=>location.reload());
+        $.post(`/admin/peticion/${id}/aprobar`, ()=>location.reload());
     });
     $('.btn-reject').on('click', function(){
         const id = $(this).data('id');

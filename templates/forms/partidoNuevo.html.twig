@@ -11,19 +11,24 @@
                 <form id="formCrearPartido" action="{{ path('crear_partido') }}" method="post">
 
                     <div class="mb-3">
-                        <label for="nombreEquipoLocal" class="form-label" >Selecciona Equipo Local</label>
-                        <select name="nombreEquipoLocal" id="nombreEquipoLocal"class="form-control">
-                            <option value="">Seleccione un equipo</option>
-                            {% for equipo in equiposLocal %}
-                                <option value="{{ equipo.id }}">{{ equipo.nombre }}</option>
+                        <label for="competicion" class="form-label">Selecciona una Competición</label>
+                        <select name="competicion" id="competicion" class="form-control">
+                            <option value="">Selecciona una competición</option>
+                            {% for competicion in competiciones %}
+                                <option value="{{ competicion.id }}">{{ competicion.nombre }}</option>
                             {% endfor %}
                         </select>
-                        <label for="nombreEquipoLocal" class="form-label" >Selecciona Equipo Visitante</label>
-                        <select name="nombreEquipoVisitante" id="nombreEquipovisitante"class="form-control">
+
+                        <label for="nombreEquipoLocal" class="form-label">Selecciona Equipo Local</label>
+                        <select name="nombreEquipoLocal" id="nombreEquipoLocal" class="form-control" disabled>
                             <option value="">Seleccione un equipo</option>
-                            {% for equipo in equiposVisitante %}
-                                <option value="{{ equipo.id }}">{{ equipo.nombre }}</option>
-                            {% endfor %}
+                        </select>
+
+                        <label for="nombreEquipoVisitante" class="form-label">Selecciona Equipo Visitante</label>
+                        <select name="nombreEquipoVisitante" id="nombreEquipoVisitante" class="form-control" disabled>
+                            <option value="">Seleccione un equipo</option>
+                        </select>
+
                         </select>
                         <label for="fecha" class="form-label">Fecha/Hora</label>
                         <input type="datetime-local" name="fecha" id="fecha" class="form-control">
@@ -52,27 +57,60 @@
 </div>
 <script>
     $(document).ready(function () {
+
+        const equiposPorCompeticion = {
+            {% for competicion in competiciones %}
+            "{{ competicion.id }}": [
+                {% for equipo in competicion.equipos %}
+                { id: {{ equipo.id }}, nombre: "{{ equipo.nombre }}" }{% if not loop.last %},{% endif %}
+                {% endfor %}
+            ]{% if not loop.last %},{% endif %}
+            {% endfor %}
+        };
+
+        const selectCompeticion = document.getElementById('competicion');
+        const selectLocal = document.getElementById('nombreEquipoLocal');
+        const selectVisitante = document.getElementById('nombreEquipoVisitante');
+
+        selectCompeticion.addEventListener('change', function () {
+            const compId = this.value;
+            console.log(this.value)
+            const equipos = equiposPorCompeticion[compId] || [];
+
+            const opciones = ['<option value="">Seleccione un equipo</option>']
+                .concat(equipos.map(eq => `<option value="${eq.id}">${eq.nombre}</option>`))
+                .join('');
+
+            selectLocal.innerHTML = opciones;
+            selectVisitante.innerHTML = opciones;
+
+            // Habilitar los campos
+            selectLocal.disabled = equipos.length === 0;
+            selectVisitante.disabled = equipos.length === 0;
+        });
+
+
         $('#nombreEquipoLocal').on('change', function () {
             const seleccionado = $(this).val();
 
-            $('#nombreEquipovisitante option').prop('disabled', false);
+            $('#nombreEquipoVisitante option').prop('disabled', false);
 
             if (seleccionado) {
 
-                $('#nombreEquipovisitante option').each(function () {
+                $('#nombreEquipoVisitante option').each(function () {
                     if ($(this).val() === seleccionado) {
                         $(this).prop('disabled', true);
                     }
                 });
 
 
-                if ($('#nombreEquipovisitante').val() === seleccionado) {
-                    $('#nombreEquipovisitante').val('');
+                if ($('#nombreEquipoVisitante').val() === seleccionado) {
+                    $('#nombreEquipoVisitante').val('');
                 }
             }
         });
 
-        $('#nombreEquipovisitante').on('change', function () {
+        $('#nombreEquipoVisitante').on('change', function () {
             const seleccionado = $(this).val();
 
             $('#nombreEquipoLocal option').prop('disabled', false);

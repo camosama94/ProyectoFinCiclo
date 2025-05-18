@@ -2,23 +2,21 @@
     <thead>
     <tr>
         <th>Nombre</th>
-        <th>Competicion</th>
-        <th>Entrenador</th>
+        <th>Administrador</th>
         <th>Acciones</th>
     </tr>
     </thead>
     <tbody>
-    {% for equipo in equipos %}
+    {% for competicion in competiciones %}
         <tr>
-            <td>{{ equipo.nombre }}</td>
-            <td>{{ equipo.competicion.nombre }}</td>
-            <td>{{ equipo.entrenador }}</td>
+            <td>{{ competicion.nombre }}</td>
+            <td>{{ competicion.admin.username }}</td>
             <td>
-                <button type="button" class="btn btn-primary btn-editar-equipo" data-id="{{ equipo.id }}">
+                <button type="button" class="btn btn-primary btn-editar-competicion" data-id="{{ competicion.id }}">
                     <i class="bi bi-pencil-square"></i>
                     Editar
                 </button>
-                <button type="button" class="btn btn-danger btn-borrar-equipo" data-id="{{ equipo.id }}">
+                <button type="button" class="btn btn-danger btn-borrar-competicion" data-id="{{ competicion.id }}">
                     <i class="bi bi-x-square"></i>
                     Borrar
                 </button>
@@ -28,28 +26,27 @@
     </tbody>
 
 </table>
-<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCrearEquipo">
-    Crear Equipo
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCrearCompeticion">
+    Crear Competición
 </button>
 
 <script>
-    $(document).on('click', '.btn-editar-equipo', function () {
+    $(document).on('click', '.btn-editar-competicion', function () {
         const id = $(this).data('id');
 
         $.ajax({
-            url: `/equipo/${id}`,
+            url: `/competicion/${id}`,
             method: 'GET',
             success: function (data) {
                 console.log(data.id);
 
                 // Asegurarse que se llenan bien los campos ANTES de mostrar el modal
-                $('#equipo-id').val(data.id);
-                $('#nombre-equipo').val(data.nombre);
-                $('#nombre-entrenador').val(data.entrenador);
-                $('#competicion-id').val(data.competicion)
+                $('#competicion-id').val(data.id);
+                $('#nombre-competicion').val(data.nombre);
+
 
                 // Mostrar el modal después de rellenar
-                $('#modalEditarEquipo').modal('show');
+                $('#modalEditarCompeticion').modal('show');
             },
             error: function (xhr) {
                 console.error("Error al cargar datos:", xhr.responseText);
@@ -57,26 +54,26 @@
         });
     });
 
-    $(document).on('click', '.btn-borrar-equipo', function () {
+    $(document).off('click', '.btn-borrar-competicion').on('click', '.btn-borrar-competicion', function () {
         const id = $(this).data('id');
 
-        if (confirm("¿Estás seguro de que quieres borrar este equipo?")) {
+        if (confirm("¿Estás seguro de que quieres borrar esta competición?")) {
             $.ajax({
-                url: `/equipo/${id}`,
+                url: `/competicion/${id}`,
                 method: 'DELETE',
                 success: function (data) {
-                    $('#btn-equipos').trigger('click');
+                    $('#btn-competiciones').trigger('click');
                     const alerta = $('#alerta-modal-editar');
                     alerta.removeClass('d-none');
                     setTimeout(() => alerta.addClass('d-none'), 3000);
                 },
                 error: function (xhr) {
-                    console.error("Error al borrar equipo:", xhr.responseText);
+                    console.error("Error al borrar competición:", xhr.responseText);
                 }
             });
         }
     });
-</script>
-{% include 'forms/equipoNuevo.html.twig' %}
-{% include 'forms/equipoEdit.html.twig' %}
 
+</script>
+{% include 'forms/competicionNueva.html.twig' %}
+{% include 'forms/competicionEdit.html.twig' %}

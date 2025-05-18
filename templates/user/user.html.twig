@@ -47,6 +47,7 @@
 
     <div class="contenido">
         <div id="sidebar">
+            <a href="#competiciones" id="btn-competiciones" data-url="{{ path('tabla_competiciones') }}" >Competiciones</a>
             <a href="#datos" id="btn-datos" data-url="{{ path('form_datos') }}" >Mis datos</a>
         </div>
 
@@ -61,7 +62,9 @@
         $(document).ready(function () {
             function cargarContenidoDesdeHash() {
                 const hash = window.location.hash.substring(1); // elimina el '#'
-                if (hash === 'datos') {
+                if (hash === 'competiciones') {
+                    $('#btn-competiciones').trigger('click');
+                } else if (hash === 'datos') {
                     $('#btn-datos').trigger('click');
                 } else if (hash === 'jugadores') {
                     $('#btn-jugadores').trigger('click');

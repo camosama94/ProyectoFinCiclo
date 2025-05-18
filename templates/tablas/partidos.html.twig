@@ -1,6 +1,7 @@
 <table id="tabla" class="display">
     <thead>
     <tr>
+        <th>Competicion</th>
         <th>Equipo Local</th>
         <th>Equipo Visitante</th>
         <th>Fecha</th>
@@ -11,6 +12,7 @@
     <tbody>
     {% for partido in partidos %}
         <tr>
+            <td>{{ partido.competicion.nombre }}</td>
             <td>{{ partido.idEquipoLocal.nombre }}</td>
             <td>{{ partido.idEquipoVisitante.nombre }}</td>
             <td>{{ partido.localizacion }}</td>
@@ -41,20 +43,27 @@
             url: `/partido/${id}`,
             method: 'GET',
             success: function (data) {
-                console.log(data.fecha)
-
-
                 $('#partido-id').val(data.id);
-                $('#EquipoLocal').val(data.equipoLocal);
-                $('#Equipovisitante').val(data.equipoVisitante);
+
+                // Asignamos la competición, lo que dispara el cambio de equipos
+                $('#competicion-id').val(data.competicion).trigger('change');
+
+                // Esperamos a que el DOM actualice las opciones del select de equipos
+                setTimeout(() => {
+                    $('#equipoLocal').val(data.equipoLocal);
+                    $('#equipoVisitante').val(data.equipoVisitante);
+                }, 100); // Este valor puede ajustarse si fuese necesario
+
+                // Fecha y hora
                 let fechaOriginal = data.fecha.date;
                 let fechaFormateada = fechaOriginal.replace(' ', 'T').substring(0, 16);
                 $('#fecha-sel').val(fechaFormateada);
+
+                // Otros campos
                 $('#localizacion-sel').val(data.localizacion);
                 $('#estadista-sel').val(data.estadista);
 
-
-
+                // Mostrar modal
                 $('#modalEditarPartido').modal('show');
             },
             error: function (xhr) {

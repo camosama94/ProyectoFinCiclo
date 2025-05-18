@@ -19,6 +19,13 @@
                         <input type="text" name="nombre-equipo" class="form-control" id="nombre-equipo" required>
                         <label for="nombre-entrenador" class="form-label">Nombre del Entrenador</label>
                         <input type="text" name="nombre-entrenador" class="form-control" id="nombre-entrenador" required>
+                        <label for="competicion-id" class="form-label">Competicion</label>
+                        <select name="competicion-id" id="competicion-id"class="form-control" required>
+                            <option value="">Seleccione una competicion</option>
+                            {% for competicion in competiciones %}
+                                <option value="{{ competicion.id }}">{{ competicion.nombre }} - {{ competicion.admin.username }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
 
                     <button type="submit" class="btn btn-success">Guardar</button>
@@ -40,7 +47,8 @@
         const id = $('#equipo-id').val();
         const datos = {
             nombreEquipo: $('#nombre-equipo').val(),
-            nombreEntrenador: $('#nombre-entrenador').val()
+            nombreEntrenador: $('#nombre-entrenador').val(),
+            competicionId: $('#competicion-id').val()
         };
 
         $.ajax({

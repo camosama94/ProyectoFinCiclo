@@ -15,19 +15,22 @@
                     <input type="hidden" id="partido-id" name="partido-id">
 
                     <div class="mb-3">
-                        <label for="EquipoLocal" class="form-label" >Selecciona Equipo Local</label>
-                        <select name="EquipoLocal" id="EquipoLocal"class="form-control">
-                            <option value="">Seleccione un equipo</option>
-                            {% for equipo in equiposLocal %}
-                                <option value="{{ equipo.id }}">{{ equipo.nombre }}</option>
+                        <label for="competicion-id" class="form-label">Selecciona una Competición</label>
+                        <select name="competicion-id" id="competicion-id" class="form-control">
+                            <option value="">Selecciona una competición</option>
+                            {% for competicion in competiciones %}
+                                <option value="{{ competicion.id }}">{{ competicion.nombre }}</option>
                             {% endfor %}
                         </select>
-                        <label for="EquipoVisitante" class="form-label" >Selecciona Equipo Visitante</label>
-                        <select name="EquipoVisitante" id="Equipovisitante"class="form-control">
+
+                        <label for="equipoLocal" class="form-label">Selecciona Equipo Local</label>
+                        <select name="equipoLocal" id="equipoLocal" class="form-control">
                             <option value="">Seleccione un equipo</option>
-                            {% for equipo in equiposVisitante %}
-                                <option value="{{ equipo.id }}">{{ equipo.nombre }}</option>
-                            {% endfor %}
+                        </select>
+
+                        <label for="equipoVisitante" class="form-label">Selecciona Equipo Visitante</label>
+                        <select name="equipoVisitante" id="equipoVisitante" class="form-control">
+                            <option value="">Seleccione un equipo</option>
                         </select>
                         <label for="fecha-sel" class="form-label">Fecha/Hora</label>
                         <input type="datetime-local" name="fecha-sel" id="fecha-sel" class="form-control">
@@ -56,13 +59,79 @@
 </div>
 
 <script>
+    $(document).ready(function () {
+
+        const equiposPorCompeticion = {
+            {% for competicion in competiciones %}
+            "{{ competicion.id }}": [
+                {% for equipo in competicion.equipos %}
+                { id: {{ equipo.id }}, nombre: "{{ equipo.nombre }}" }{% if not loop.last %},{% endif %}
+                {% endfor %}
+            ]{% if not loop.last %},{% endif %}
+            {% endfor %}
+        };
+
+        $('#competicion-id').on('change', function () {
+            const compId = $(this).val();
+            const equipos = equiposPorCompeticion[compId] || [];
+
+            const opciones = ['<option value="">Seleccione un equipo</option>']
+                .concat(equipos.map(eq => `<option value="${eq.id}">${eq.nombre}</option>`))
+                .join('');
+
+            $('#equipoLocal').html(opciones).prop('disabled', equipos.length === 0);
+            $('#equipoVisitante').html(opciones).prop('disabled', equipos.length === 0);
+        });
+
+
+
+        $('#equipoLocal').on('change', function () {
+            const seleccionado = $(this).val();
+
+            $('#equipoVisitante option').prop('disabled', false);
+
+            if (seleccionado) {
+
+                $('#equipoVisitante option').each(function () {
+                    if ($(this).val() === seleccionado) {
+                        $(this).prop('disabled', true);
+                    }
+                });
+
+
+                if ($('#equipoVisitante').val() === seleccionado) {
+                    $('#equipoVisitante').val('');
+                }
+            }
+        });
+
+        $('#equipoVisitante').on('change', function () {
+            const seleccionado = $(this).val();
+
+            $('#equipoLocal option').prop('disabled', false);
+
+            if (seleccionado) {
+                $('#equipoLocal option').each(function () {
+                    if ($(this).val() === seleccionado) {
+                        $(this).prop('disabled', true);
+                    }
+                });
+
+                if ($('#equipoLocal').val() === seleccionado) {
+                    $('#equipoLocal').val('');
+                }
+            }
+        });
+    });
+
     $('#formEditarPartido').submit(function (e) {
         e.preventDefault();
 
         const id = $('#partido-id').val();
         const datos = {
-            EquipoLocal: $('#EquipoLocal').val(),
-            EquipoVisitante: $('#Equipovisitante').val(),
+            Competicion: $('#competicion-id').val(),
+            EquipoLocal: $('#equipoLocal').val(),
+            EquipoVisitante: $('#equipoVisitante').val(),
             fecha: $('#fecha-sel').val(),
             localizacion: $('#localizacion-sel').val(),
             estadista: $('#estadista-sel').val(),
@@ -87,46 +156,5 @@
     $('.cerrar-modal-partido').on('click', function () {
         $('#btn-partidos').trigger('click');
         $('#alerta-modal-editar').addClass('d-none');
-    });
-
-
-    $(document).ready(function () {
-        $('#EquipoLocal').on('change', function () {
-            const seleccionado = $(this).val();
-
-            $('#Equipovisitante option').prop('disabled', false);
-
-            if (seleccionado) {
-
-                $('#Equipovisitante option').each(function () {
-                    if ($(this).val() === seleccionado) {
-                        $(this).prop('disabled', true);
-                    }
-                });
-
-
-                if ($('#Equipovisitante').val() === seleccionado) {
-                    $('#Equipovisitante').val('');
-                }
-            }
-        });
-
-        $('#Equipovisitante').on('change', function () {
-            const seleccionado = $(this).val();
-
-            $('#EquipoLocal option').prop('disabled', false);
-
-            if (seleccionado) {
-                $('#EquipoLocal option').each(function () {
-                    if ($(this).val() === seleccionado) {
-                        $(this).prop('disabled', true);
-                    }
-                });
-
-                if ($('#EquipoLocal').val() === seleccionado) {
-                    $('#EquipoLocal').val('');
-                }
-            }
-        });
     });
 </script>

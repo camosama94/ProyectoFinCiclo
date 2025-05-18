@@ -15,6 +15,13 @@
                         <input type="text" name="nombreEquipo" class="form-control" id="nombreEquipo" required>
                         <label for="nombreEntrenador" class="form-label">Nombre del Entrenador</label>
                         <input type="text" name="nombreEntrenador" class="form-control" id="nombreEntrenador" required>
+                        <label for="competicion" class="form-label">Competicion</label>
+                        <select name="competicion" id="competicion"class="form-control">
+                            <option value="">Seleccione una competicion</option>
+                            {% for competicion in competiciones %}
+                                <option value="{{ competicion.id }}">{{ competicion.nombre }} - {{ competicion.admin.username }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
 
                     <button type="submit" class="btn btn-success">Guardar</button>

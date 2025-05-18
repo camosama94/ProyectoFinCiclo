@@ -2,12 +2,14 @@
 
 namespace App\Controller;
 
+use App\Entity\Competicion;
 use App\Entity\Equipo;
 use App\Entity\PeticionRol;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -23,11 +25,14 @@ class UserController extends AbstractController
     #[Route('/form/usuario', name: 'form_datos')]
     public function equipos(ManagerRegistry $doctrine): Response
     {
-        return $this->render('forms/datosUsuario.html.twig');
+        $competiciones = $doctrine->getRepository(Competicion::class)->findAll();
+        return $this->render('forms/datosUsuario.html.twig',["competiciones"=>$competiciones]);
     }
     #[Route('/usuario/{id}/peticion-rol', name:'request_stats', methods:['POST'])]
-    public function requestStats(int $id, ManagerRegistry $doctrine, Security $security): JsonResponse
+    public function requestStats(int $id, ManagerRegistry $doctrine, Security $security, Request $request): JsonResponse
     {
+        $competicion = $doctrine->getRepository(Competicion::class)->find($request->get('competicion_id'));
+
         $user = $security->getUser();
         if (!$user || $user->getId() !== $id) {
             return new JsonResponse(['error'=>'Acceso denegado'], 403);
@@ -44,12 +49,13 @@ class UserController extends AbstractController
         $pr->setUsuario($user);
         $pr->setRol('ROLE_STATS');
         $pr->setCreatedAt(new \DateTimeImmutable('now'));
+        $pr->setCompeticion($competicion);
 
         $em = $doctrine->getManager();
         $em->persist($pr);
         $em->flush();
 
-        // Opcional: notificar a los admins via email o mensaje
+
         return new JsonResponse(['success'=>true]);
     }
 

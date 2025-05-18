@@ -60,7 +60,7 @@
                 <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         {% if app.user %}
-                            {% if 'ROLE_ADMIN' in app.user.roles %}
+                            {% if 'ROLE_ADMIN_LIGA' in app.user.roles %}
                                 <li class="nav-item">
                                     <a class="btn btn-secondary" aria-current="page" href="{{ path('ruta_prueba') }}">Panel de Gestion</a>
                                 </li>

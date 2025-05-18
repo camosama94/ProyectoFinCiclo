@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20250419170858 extends AbstractMigration
+final class Version20250517150748 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -21,10 +21,13 @@ final class Version20250419170858 extends AbstractMigration
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->addSql(<<<'SQL'
-            CREATE TABLE peticion_rol (id INT AUTO_INCREMENT NOT NULL, usuario_id INT NOT NULL, rol VARCHAR(50) NOT NULL, status VARCHAR(20) NOT NULL, created_at DATETIME NOT NULL COMMENT '(DC2Type:datetime_immutable)', INDEX IDX_8CEE4CE0DB38439E (usuario_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB
+            ALTER TABLE peticion_rol ADD competicion_id INT NOT NULL
         SQL);
         $this->addSql(<<<'SQL'
-            ALTER TABLE peticion_rol ADD CONSTRAINT FK_8CEE4CE0DB38439E FOREIGN KEY (usuario_id) REFERENCES `user` (id)
+            ALTER TABLE peticion_rol ADD CONSTRAINT FK_8CEE4CE0D9407152 FOREIGN KEY (competicion_id) REFERENCES competicion (id)
+        SQL);
+        $this->addSql(<<<'SQL'
+            CREATE INDEX IDX_8CEE4CE0D9407152 ON peticion_rol (competicion_id)
         SQL);
     }
 
@@ -32,10 +35,13 @@ final class Version20250419170858 extends AbstractMigration
     {
         // this down() migration is auto-generated, please modify it to your needs
         $this->addSql(<<<'SQL'
-            ALTER TABLE peticion_rol DROP FOREIGN KEY FK_8CEE4CE0DB38439E
+            ALTER TABLE peticion_rol DROP FOREIGN KEY FK_8CEE4CE0D9407152
         SQL);
         $this->addSql(<<<'SQL'
-            DROP TABLE peticion_rol
+            DROP INDEX IDX_8CEE4CE0D9407152 ON peticion_rol
+        SQL);
+        $this->addSql(<<<'SQL'
+            ALTER TABLE peticion_rol DROP competicion_id
         SQL);
     }
 }

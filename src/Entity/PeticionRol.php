@@ -28,6 +28,11 @@ class PeticionRol
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
+    #[ORM\ManyToOne(targetEntity: Competicion::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Competicion $competicion = null;
+
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -86,4 +91,16 @@ class PeticionRol
 
         return $this;
     }
+
+    public function getCompeticion(): ?Competicion
+    {
+        return $this->competicion;
+    }
+
+    public function setCompeticion(?Competicion $competicion): self
+    {
+        $this->competicion = $competicion;
+        return $this;
+    }
+
 }

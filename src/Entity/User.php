@@ -51,10 +51,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: PeticionRol::class, mappedBy: 'usuario')]
     private Collection $peticionRoles;
 
+    /**
+     * @var Collection<int, Competicion>
+     */
+    #[ORM\OneToMany(targetEntity: Competicion::class, mappedBy: 'admin')]
+    private Collection $competiciones;
+
+    /**
+     * @var Collection<int, Competicion>
+     */
+    #[ORM\ManyToMany(targetEntity: Competicion::class, inversedBy: 'estadistas')]
+    private Collection $competicionesEstadista;
+
     public function __construct()
     {
         $this->partidos = new ArrayCollection();
         $this->peticionRoles = new ArrayCollection();
+        $this->competiciones = new ArrayCollection();
+        $this->competicionesEstadista = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -203,4 +217,59 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
+    /**
+     * @return Collection<int, Competicion>
+     */
+    public function getCompeticiones(): Collection
+    {
+        return $this->competiciones;
+    }
+
+    public function addCompeticione(Competicion $competicione): static
+    {
+        if (!$this->competiciones->contains($competicione)) {
+            $this->competiciones->add($competicione);
+            $competicione->setAdmin($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCompeticione(Competicion $competicione): static
+    {
+        if ($this->competiciones->removeElement($competicione)) {
+            // set the owning side to null (unless already changed)
+            if ($competicione->getAdmin() === $this) {
+                $competicione->setAdmin(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getCompeticionesEstadista(): Collection
+    {
+        return $this->competicionesEstadista;
+    }
+
+    public function addCompeticioneEstadista(Competicion $competicion): static
+    {
+        if (!$this->competicionesEstadista->contains($competicion)) {
+            $this->competicionesEstadista->add($competicion);
+            $competicion->addEstadista($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCompeticioneEstadista(Competicion $competicion): static
+    {
+        if ($this->competicionesEstadista->removeElement($competicion)) {
+            $competicion->removeEstadista($this);
+        }
+
+        return $this;
+    }
+
 }
