@@ -12,7 +12,7 @@
 
                     <div class="mb-3">
                         <label for="competicion" class="form-label">Selecciona una Competición</label>
-                        <select name="competicion" id="competicion" class="form-control">
+                        <select name="competicion" id="competicion" class="form-control" required>
                             <option value="">Selecciona una competición</option>
                             {% for competicion in competiciones %}
                                 <option value="{{ competicion.id }}">{{ competicion.nombre }}</option>
@@ -20,12 +20,12 @@
                         </select>
 
                         <label for="nombreEquipoLocal" class="form-label">Selecciona Equipo Local</label>
-                        <select name="nombreEquipoLocal" id="nombreEquipoLocal" class="form-control" disabled>
+                        <select name="nombreEquipoLocal" id="nombreEquipoLocal" class="form-control" disabled required>
                             <option value="">Seleccione un equipo</option>
                         </select>
 
                         <label for="nombreEquipoVisitante" class="form-label">Selecciona Equipo Visitante</label>
-                        <select name="nombreEquipoVisitante" id="nombreEquipoVisitante" class="form-control" disabled>
+                        <select name="nombreEquipoVisitante" id="nombreEquipoVisitante" class="form-control" disabled required>
                             <option value="">Seleccione un equipo</option>
                         </select>
 
@@ -35,11 +35,8 @@
                         <label for="localizacion" class="form-label">Localizacion</label>
                         <input type="text" name="localizacion" id="localizacion" class="form-control">
                         <label for="nombreEquipoLocal" class="form-label" >Asigna a un estadista</label>
-                        <select name="estadista" id="estadista"class="form-control">
+                        <select name="estadista" id="estadista"class="form-control" disabled required>
                             <option value="">Seleccione un estadista</option>
-                            {% for estadista in users %}
-                                <option value="{{ estadista.id }}">{{ estadista.email }}</option>
-                            {% endfor %}
                         </select>
 
                     </div>
@@ -68,26 +65,47 @@
             {% endfor %}
         };
 
+        const estadistasPorCompeticion = {
+            {% for competicion in competiciones %}
+            "{{ competicion.id }}": [
+                {% for estadista in competicion.estadistas %}
+                { id: {{ estadista.id }}, nombre: "{{ estadista.username }}" }{% if not loop.last %},{% endif %}
+                {% endfor %}
+            ]{% if not loop.last %},{% endif %}
+            {% endfor %}
+        };
+
         const selectCompeticion = document.getElementById('competicion');
         const selectLocal = document.getElementById('nombreEquipoLocal');
         const selectVisitante = document.getElementById('nombreEquipoVisitante');
+        const selectEstadistas = document.getElementById('estadista');
 
         selectCompeticion.addEventListener('change', function () {
             const compId = this.value;
             console.log(this.value)
             const equipos = equiposPorCompeticion[compId] || [];
+            const estadistas = estadistasPorCompeticion[compId] || [];
 
             const opciones = ['<option value="">Seleccione un equipo</option>']
                 .concat(equipos.map(eq => `<option value="${eq.id}">${eq.nombre}</option>`))
                 .join('');
 
+            const lista = ['<option value="">Seleccione un estadista</option>']
+                .concat(estadistas.map(es => `<option value="${es.id}">${es.nombre}</option>`))
+                .join('');
+
             selectLocal.innerHTML = opciones;
             selectVisitante.innerHTML = opciones;
+            selectEstadistas.innerHTML  = lista;
 
             // Habilitar los campos
             selectLocal.disabled = equipos.length === 0;
             selectVisitante.disabled = equipos.length === 0;
+            selectEstadistas.disabled = estadistas.length === 0;
         });
+
+
+
 
 
         $('#nombreEquipoLocal').on('change', function () {

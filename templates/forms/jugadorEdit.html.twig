@@ -18,7 +18,7 @@
                         <label for="nombre-jugador" class="form-label">Nombre del Jugador</label>
                         <input type="text" name="nombre-jugador" class="form-control" id="nombre-jugador" required>
                         <label for="nombre-equipo" class="form-label" >Selecciona su Equipo</label>
-                        <select name="nombre-equipo" id="nombre-equipo"class="form-control">
+                        <select name="nombre-equipo" id="nombre-equipo"class="form-control" required>
                             <option value="">Seleccione un equipo</option>
                             {% for equipo in equipos %}
                                 <option value="{{ equipo.id }}">{{ equipo.nombre }}</option>

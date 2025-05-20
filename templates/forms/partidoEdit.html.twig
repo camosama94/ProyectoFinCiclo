@@ -39,9 +39,6 @@
                         <label for="nombreEquipoLocal" class="form-label" >Asigna a un estadista</label>
                         <select name="estadista-sel" id="estadista-sel"class="form-control">
                             <option value="">Seleccione un estadista</option>
-                            {% for estadista in users %}
-                                <option value="{{ estadista.id }}">{{ estadista.email }}</option>
-                            {% endfor %}
                         </select>
 
                     </div>
@@ -71,16 +68,32 @@
             {% endfor %}
         };
 
+        const estadistasPorCompeticion = {
+            {% for competicion in competiciones %}
+            "{{ competicion.id }}": [
+                {% for estadista in competicion.estadistas %}
+                { id: {{ estadista.id }}, nombre: "{{ estadista.username }}" }{% if not loop.last %},{% endif %}
+                {% endfor %}
+            ]{% if not loop.last %},{% endif %}
+            {% endfor %}
+        };
+
         $('#competicion-id').on('change', function () {
             const compId = $(this).val();
             const equipos = equiposPorCompeticion[compId] || [];
+            const estadistas = estadistasPorCompeticion[compId] || [];
 
             const opciones = ['<option value="">Seleccione un equipo</option>']
                 .concat(equipos.map(eq => `<option value="${eq.id}">${eq.nombre}</option>`))
                 .join('');
 
+            const lista = ['<option value="">Seleccione un estadista</option>']
+                .concat(estadistas.map(es => `<option value="${es.id}">${es.nombre}</option>`))
+                .join('');
+
             $('#equipoLocal').html(opciones).prop('disabled', equipos.length === 0);
             $('#equipoVisitante').html(opciones).prop('disabled', equipos.length === 0);
+            $('#estadista-sel').html(lista).prop('disabled', equipos.length === 0);
         });
 
 

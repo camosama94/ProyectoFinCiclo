@@ -313,14 +313,16 @@ class PruebaController extends AbstractController
     }
 
 
-    #[Route('/usuario/{id}', name: 'borrar_usuario', methods: ['DELETE'])]
-    public function borrarUsuario(Request $request, ManagerRegistry $doctrine,): Response
+    #[Route('/usuario/{id}/{idComp}', name: 'borrar_competición_usuario', methods: ['PUT'])]
+    public function borrarCompeticionUsuario(Request $request, ManagerRegistry $doctrine,): Response
     {
         $id = $request->get('id');
+        $idComp = $request->get('idComp');
+        $competicion = $doctrine->getRepository(Competicion::class)->find($idComp);
         $entityManager = $doctrine->getManager();
         $usuario = $entityManager->getRepository(User::class)->find($id);
 
-        $entityManager->remove($usuario);
+        $usuario->removeCompeticioneEstadista($competicion);
 
         $entityManager->flush();
         return $this->redirect('/pruebaAdmin#usuarios');
@@ -339,8 +341,13 @@ class PruebaController extends AbstractController
         if (!in_array('ROLE_ADMIN_LIGA', $usuario->getRoles())) {
             $usuario->setRoles(array_merge($usuario->getRoles(), ['ROLE_ADMIN_LIGA']));
         }
+        if (!in_array('ROLE_STATS', $usuario->getRoles())) {
+            $usuario->setRoles(array_merge($usuario->getRoles(), ['ROLE_STATS']));
+        }
+
 
         $competicion->setAdmin($usuario);
+        $competicion->addEstadista($usuario);
 
         $entityManager = $doctrine->getManager();
         $entityManager->persist($competicion);

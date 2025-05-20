@@ -15,8 +15,8 @@
             <td>{{ partido.competicion.nombre }}</td>
             <td>{{ partido.idEquipoLocal.nombre }}</td>
             <td>{{ partido.idEquipoVisitante.nombre }}</td>
-            <td>{{ partido.localizacion }}</td>
             <td>{{ partido.fecha|date('Y-m-d H:i') }}</td>
+            <td>{{ partido.localizacion }}</td>
             <td>
                 <button type="button" class="btn btn-primary btn-editar-partido" data-id="{{ partido.id }}">
                     <i class="bi bi-pencil-square"></i>
@@ -52,6 +52,7 @@
                 setTimeout(() => {
                     $('#equipoLocal').val(data.equipoLocal);
                     $('#equipoVisitante').val(data.equipoVisitante);
+                    $('#estadista-sel').val(data.estadista);
                 }, 100); // Este valor puede ajustarse si fuese necesario
 
                 // Fecha y hora

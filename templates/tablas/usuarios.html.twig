@@ -5,6 +5,7 @@
         <th>Email</th>
         <th>Roles</th>
         <th>Solicitudes</th>
+        <th>Competiciones</th>
         <th>Acciones</th>
     </tr>
     </thead>
@@ -22,6 +23,13 @@
                 </td>
                 <td>
                     <span class="text-muted">Sin solicitudes</span>
+                </td>
+                <td>
+                    <select name="competicionEstadista{{ usuario.id }}" id="competicionEstadista{{ usuario.id }}">
+                        {% for competicion in usuario.competicionesEstadista %}
+                            <option value="{{ competicion.id }}">{{ competicion.nombre }}</option>
+                        {% endfor %}
+                    </select>
                 </td>
                 <td>
                     <button type="button" class="btn btn-danger btn-borrar-usuario" data-id="{{ usuario.id }}">
@@ -69,7 +77,7 @@
         if (!$(this).data('clicked')) {
             $(this).data('clicked', true); // Marca el botón como "ya clickeado"
 
-            if (confirm("¿Estás seguro de que quieres dar el rol de Estadista a este usuario?")) {
+            if (confirm("¿Estás seguro de que quieres dar el rol de Estadista sobre tu competicion a este usuario?")) {
                 $.ajax({
                     url: `/usuario/${id}/on`,
                     method: 'PUT',
@@ -98,7 +106,7 @@
         if (!$(this).data('clicked')) {
             $(this).data('clicked', true); // Marca el botón como "ya clickeado"
 
-            if (confirm("¿Estás seguro de que quieres quitar el rol de Estadista a este usuario?")) {
+            if (confirm("¿Estás seguro de que quieres denegar el rol de Estadista sobre la competición a este usuario?")) {
                 $.ajax({
                     url: `/usuario/${id}/off`,
                     method: 'PUT',
@@ -122,11 +130,12 @@
 
     $(document).on('click', '.btn-borrar-usuario', function () {
         const id = $(this).data('id');
+        const idCompeticion = $('#competicionEstadista' + id).val();
 
-        if (confirm("¿Estás seguro de que quieres borrar este usuario?")) {
+        if (confirm("¿Estás seguro de que quieres quitarle el Rol este usuario sobre tu competición?")) {
             $.ajax({
-                url: `/usuario/${id}`,
-                method: 'DELETE',
+                url: `/usuario/${id}/${idCompeticion}`,
+                method: 'PUT',
                 success: function (data) {
                     $('#btn-partidos').trigger('click');
                     const alerta = $('#alerta-modal-editar');

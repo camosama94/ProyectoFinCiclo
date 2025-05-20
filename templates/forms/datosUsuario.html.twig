@@ -29,12 +29,23 @@
         <div class="form-group">
             <label for="competicion">Selecciona una competición:</label>
             <select name="competicion_id" id="competicion" class="form-control">
+                {% set hayDisponibles = false %}
                 {% for competicion in competiciones %}
-                    <option value="{{ competicion.id }}">{{ competicion.nombre }} - {{ competicion.admin.username }}</option>
+                    {% set yaAsignado = app.user.competicionesEstadista is defined and competicion in app.user.competicionesEstadista %}
+                    {% if not yaAsignado %}
+                        {% set hayDisponibles = true %}
+                        <option value="{{ competicion.id }}">{{ competicion.nombre }} - {{ competicion.admin.username }}</option>
+                    {% endif %}
+
                 {% endfor %}
+                {% if not hayDisponibles %}
+                    <option disabled selected>No hay competiciones disponibles</option>
+                {% endif %}
             </select>
         </div>
+        {% if hayDisponibles %}
         <button type="submit" class="btn btn-secondary mt-3">Solicitar rol de Estadista</button>
+        {% endif %}
     </form>
 {% endif %}
 
@@ -42,11 +53,11 @@
 {% if peticion %}
     <div>
         {% if peticion.status.value == 'PENDING' %}
-            <span class="text-warning">Tienes una solicitud pendiente.</span>
+            <span class="text-warning">Tienes una solicitud pendiente ({{ peticion.competicion.nombre }}).</span>
         {% elseif peticion.status.value == 'APPROVED' %}
-            <span class="text-success">Tu solicitud fue aprobada.</span>
+            <span class="text-success">Tu solicitud sobre "{{ peticion.competicion.nombre }}" fue aprobada.</span>
         {% elseif peticion.status.value == 'REJECTED' %}
-            <span class="text-danger">Tu solicitud fue rechazada.</span>
+            <span class="text-danger">Tu solicitud sobre "{{ peticion.competicion.nombre }}" fue rechazada.</span>
         {% endif %}
     </div>
 
