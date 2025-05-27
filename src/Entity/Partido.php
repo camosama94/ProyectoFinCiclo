@@ -26,12 +26,18 @@ class Partido
     #[ORM\JoinColumn(nullable: false)]
     private ?Equipo $idEquipoLocal = null;
 
+    #[ORM\Column]
+    private ?int $puntosLocal = 0;
+
     #[ORM\ManyToOne(inversedBy: 'partidosVisitante')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Equipo $idEquipoVisitante = null;
 
     #[ORM\Column]
-    private ?bool $activo = null;
+    private ?int $puntosVisitante = 0;
+
+    #[ORM\Column]
+    private ?bool $finalizado = false;
 
     /**
      * @var Collection<int, Accion>
@@ -88,6 +94,19 @@ class Partido
         return $this;
     }
 
+    public function isFinalizado(): bool
+    {
+        return $this->finalizado ?? false;
+    }
+
+    public function setFinalizado(bool $finalizado): self
+    {
+        $this->finalizado = $finalizado;
+
+        return $this;
+    }
+
+
     public function getIdEquipoLocal(): ?Equipo
     {
         return $this->idEquipoLocal;
@@ -99,6 +118,18 @@ class Partido
 
         return $this;
     }
+
+    public function getPuntosLocal(): int
+    {
+        return $this->puntosLocal;
+    }
+
+    public function setPuntosLocal(int $puntosLocal): self
+    {
+        $this->puntosLocal = $puntosLocal;
+        return $this;
+    }
+
 
     public function getIdEquipoVisitante(): ?Equipo
     {
@@ -112,15 +143,14 @@ class Partido
         return $this;
     }
 
-    public function isActivo(): ?bool
+    public function getPuntosVisitante(): int
     {
-        return $this->activo;
+        return $this->puntosVisitante;
     }
 
-    public function setActivo(bool $activo): static
+    public function setPuntosVisitante(int $puntosVisitante): self
     {
-        $this->activo = $activo;
-
+        $this->puntosVisitante = $puntosVisitante;
         return $this;
     }
 
@@ -207,4 +237,13 @@ class Partido
 
         return $this;
     }
+
+    public function isActivoPorTiempo(): bool
+    {
+        $ahora = new \DateTime();
+        $mediaHoraAntes = (clone $this->fecha)->modify('-30 minutes');
+
+        return $ahora >= $mediaHoraAntes && !$this->isFinalizado();
+    }
+
 }

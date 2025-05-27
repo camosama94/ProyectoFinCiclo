@@ -62,13 +62,12 @@
                         {% if app.user %}
                             {% if 'ROLE_ADMIN_LIGA' in app.user.roles %}
                                 <li class="nav-item">
-                                    <a class="btn btn-secondary" aria-current="page" href="{{ path('ruta_prueba') }}">Panel de Gestion</a>
+                                    <a class="btn btn-secondary" aria-current="page" href="{{ path('ruta_admin') }}">Panel de Gestion</a>
                                 </li>
                             {% endif %}
                         {% endif %}
                     </ul>
-
-                        <button class="btn btn-secondary" type="submit">Seguir Partidos</button>
+                    <a class="btn btn-secondary"  href="{{ path('ruta_partidos') }}">Ver partidos</a>
 
                 </div>
             </div>

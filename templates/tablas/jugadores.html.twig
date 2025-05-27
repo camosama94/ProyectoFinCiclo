@@ -35,11 +35,12 @@
     Crear Jugador
 </button>
 <script>
+    $(document).off('click', '.btn-editar-jugador');
     $(document).on('click', '.btn-editar-jugador', function () {
         const id = $(this).data('id');
 
         $.ajax({
-            url: `/jugador/${id}`,
+            url: `/admin/jugador/${id}`,
             method: 'GET',
             success: function (data) {
                 console.log(data.posicion);
@@ -62,12 +63,13 @@
         });
     });
 
+    $(document).off('click', '.btn-borrar-jugador');
     $(document).on('click', '.btn-borrar-jugador', function () {
         const id = $(this).data('id');
 
         if (confirm("¿Estás seguro de que quieres borrar este jugador?")) {
             $.ajax({
-                url: `/jugador/${id}`,
+                url: `/admin/jugador/${id}`,
                 method: 'DELETE',
                 success: function (data) {
                     $('#btn-jugadores').trigger('click');

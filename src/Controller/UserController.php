@@ -22,7 +22,7 @@ class UserController extends AbstractController
         return $this->render('user/user.html.twig');
     }
 
-    #[Route('/form/usuario', name: 'form_datos')]
+    #[Route('/usuario/form', name: 'form_datos')]
     public function equipos(ManagerRegistry $doctrine): Response
     {
         $competiciones = $doctrine->getRepository(Competicion::class)->findAll();

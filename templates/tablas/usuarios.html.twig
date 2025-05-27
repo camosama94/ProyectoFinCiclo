@@ -128,6 +128,7 @@
         }
     });
 
+    $(document).off('click', '.btn-borrar-usuario');
     $(document).on('click', '.btn-borrar-usuario', function () {
         const id = $(this).data('id');
         const idCompeticion = $('#competicionEstadista' + id).val();

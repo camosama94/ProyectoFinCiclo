@@ -33,11 +33,12 @@
 </button>
 
 <script>
+    $(document).off('click', '.btn-editar-equipo');
     $(document).on('click', '.btn-editar-equipo', function () {
         const id = $(this).data('id');
 
         $.ajax({
-            url: `/equipo/${id}`,
+            url: `/admin/equipo/${id}`,
             method: 'GET',
             success: function (data) {
                 console.log(data.id);
@@ -57,12 +58,13 @@
         });
     });
 
+    $(document).off('click', '.btn-borrar-equipo');
     $(document).on('click', '.btn-borrar-equipo', function () {
         const id = $(this).data('id');
 
         if (confirm("¿Estás seguro de que quieres borrar este equipo?")) {
             $.ajax({
-                url: `/equipo/${id}`,
+                url: `/admin/equipo/${id}`,
                 method: 'DELETE',
                 success: function (data) {
                     $('#btn-equipos').trigger('click');

@@ -36,11 +36,12 @@
 </button>
 
 <script>
+    $(document).off('click', '.btn-editar-partido');
     $(document).on('click', '.btn-editar-partido', function () {
         const id = $(this).data('id');
 
         $.ajax({
-            url: `/partido/${id}`,
+            url: `/admin/partido/${id}`,
             method: 'GET',
             success: function (data) {
                 $('#partido-id').val(data.id);
@@ -73,12 +74,13 @@
         });
     });
 
+    $(document).off('click', '.btn-borrar-partido');
     $(document).on('click', '.btn-borrar-partido', function () {
         const id = $(this).data('id');
 
         if (confirm("¿Estás seguro de que quieres borrar este partido?")) {
             $.ajax({
-                url: `/partido/${id}`,
+                url: `/admin/partido/${id}`,
                 method: 'DELETE',
                 success: function (data) {
                     $('#btn-partidos').trigger('click');

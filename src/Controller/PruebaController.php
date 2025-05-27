@@ -20,7 +20,7 @@ use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 
 class PruebaController extends AbstractController
 {
-    #[Route('/pruebaAdmin', name: 'ruta_prueba')]
+    #[Route('/admin', name: 'ruta_admin')]
     public function index(ManagerRegistry $doctrine, Security $security): Response
     {
         $usuario = $security->getUser();
@@ -38,7 +38,7 @@ class PruebaController extends AbstractController
         return $this->render('admin/admin.html.twig',['peticionesPendientes' => $peticionesPendientes]);
     }
 
-    #[Route('/equipo/new', name: 'crear_equipo', methods: ['POST'])]
+    #[Route('/admin/equipo/new', name: 'crear_equipo', methods: ['POST'])]
     public function crearEquipo(Request $request, ManagerRegistry $doctrine): Response
     {
         $nombre = $request->request->get('nombreEquipo');
@@ -55,11 +55,11 @@ class PruebaController extends AbstractController
         $entityManager->persist($equipo);
         $entityManager->flush();
 
-        return $this->redirect('/pruebaAdmin#equipos');
+        return $this->redirect('/admin#equipos');
 
     }
 
-    #[Route('/equipo/{id}', name: 'ver_equipo', methods: ['GET'])]
+    #[Route('/admin/equipo/{id}', name: 'ver_equipo', methods: ['GET'])]
     public function verEquipo(Request $request, ManagerRegistry $doctrine): Response
     {
         $id = $request->get('id');
@@ -73,7 +73,7 @@ class PruebaController extends AbstractController
         ]);
     }
 
-    #[Route('/equipo/{id}/edit', name: 'editar_equipo', methods: ['PUT'])]
+    #[Route('/admin/equipo/{id}/edit', name: 'editar_equipo', methods: ['PUT'])]
     public function editarEquipo(Request $request, ManagerRegistry $doctrine, Equipo $equipo): Response
     {
         $nombre = $request->request->get('nombreEquipo');
@@ -85,10 +85,10 @@ class PruebaController extends AbstractController
         $equipo->setCompeticion($competicion);
         $entityManager = $doctrine->getManager();
         $entityManager->flush();
-        return $this->redirect('/pruebaAdmin#equipos');
+        return $this->redirect('/admin#equipos');
     }
 
-    #[Route('/equipo/{id}', name: 'borrar_equipo', methods: ['DELETE'])]
+    #[Route('/admin/equipo/{id}', name: 'borrar_equipo', methods: ['DELETE'])]
     public function borrarEquipo(Request $request, ManagerRegistry $doctrine,): Response
     {
         $id = $request->get('id');
@@ -96,11 +96,11 @@ class PruebaController extends AbstractController
         $equipo = $entityManager->getRepository(Equipo::class)->find($id);
         $entityManager->remove($equipo);
         $entityManager->flush();
-        return $this->redirect('/pruebaAdmin#equipos');
+        return $this->redirect('/admin#equipos');
     }
 
 
-    #[Route('/jugador/new', name: 'crear_jugador', methods: ['POST'])]
+    #[Route('/admin/jugador/new', name: 'crear_jugador', methods: ['POST'])]
     public function crearjugador(Request $request, ManagerRegistry $doctrine): Response
     {
         $nombre = $request->request->get('nombreJugador');
@@ -121,12 +121,12 @@ class PruebaController extends AbstractController
         $entityManager->persist($jugador);
         $entityManager->flush();
 
-        return $this->redirect('/pruebaAdmin#jugadores');
+        return $this->redirect('/admin#jugadores');
 
     }
 
 
-    #[Route('/jugador/{id}', name: 'ver_jugador', methods: ['GET'])]
+    #[Route('/admin/jugador/{id}', name: 'ver_jugador', methods: ['GET'])]
     public function verJugador(Request $request, ManagerRegistry $doctrine): Response
     {
         $id = $request->get('id');
@@ -143,7 +143,7 @@ class PruebaController extends AbstractController
         ]);
     }
 
-    #[Route('/jugador/{id}/edit', name: 'editar_jugador', methods: ['PUT'])]
+    #[Route('/admin/jugador/{id}/edit', name: 'editar_jugador', methods: ['PUT'])]
     public function editarjugador(Request $request, ManagerRegistry $doctrine, Jugador $jugador): Response
     {
 
@@ -164,10 +164,10 @@ class PruebaController extends AbstractController
 
         $entityManager = $doctrine->getManager();
         $entityManager->flush();
-        return $this->redirect('/pruebaAdmin#jugadores');
+        return $this->redirect('/admin#jugadores');
     }
 
-    #[Route('/jugador/{id}', name: 'borrar_jugador', methods: ['DELETE'])]
+    #[Route('/admin/jugador/{id}', name: 'borrar_jugador', methods: ['DELETE'])]
     public function borrarJugador(Request $request, ManagerRegistry $doctrine,): Response
     {
         $id = $request->get('id');
@@ -177,10 +177,10 @@ class PruebaController extends AbstractController
         $entityManager->remove($jugador);
 
         $entityManager->flush();
-        return $this->redirect('/pruebaAdmin#jugadores');
+        return $this->redirect('/admin#jugadores');
     }
 
-    #[Route('/partido/new', name: 'crear_partido', methods: ['POST'])]
+    #[Route('/admin/partido/new', name: 'crear_partido', methods: ['POST'])]
     public function crearPartido(Request $request, ManagerRegistry $doctrine): Response
     {
         $idLocal = $request->request->get('nombreEquipoLocal');
@@ -199,7 +199,6 @@ class PruebaController extends AbstractController
         $partido->setIdEquipoVisitante($visitante);
         $partido->setFecha($fecha);
         $partido->setLocalizacion($localizacion);
-        $partido->setActivo(false);
         $partido->setIdUsuario($user);
         $partido->setCompeticion($competicion);
 
@@ -207,11 +206,11 @@ class PruebaController extends AbstractController
         $entityManager->persist($partido);
         $entityManager->flush();
 
-        return $this->redirect('/pruebaAdmin#partidos');
+        return $this->redirect('/admin#partidos');
 
     }
 
-    #[Route('/partido/{id}', name: 'ver_partido', methods: ['GET'])]
+    #[Route('/admin/partido/{id}', name: 'ver_partido', methods: ['GET'])]
     public function verPartido(Request $request, ManagerRegistry $doctrine): Response
     {
         $id = $request->get('id');
@@ -229,7 +228,7 @@ class PruebaController extends AbstractController
         ]);
     }
 
-    #[Route('/partido/{id}/edit', name: 'editar_partido', methods: ['PUT'])]
+    #[Route('/admin/partido/{id}/edit', name: 'editar_partido', methods: ['PUT'])]
     public function editarPartido(Request $request, ManagerRegistry $doctrine, Partido $partido): Response
     {
         $idLocal = $request->request->get('EquipoLocal');
@@ -252,10 +251,10 @@ class PruebaController extends AbstractController
 
         $entityManager = $doctrine->getManager();
         $entityManager->flush();
-        return $this->redirect('/pruebaAdmin#partidos');
+        return $this->redirect('/admin#partidos');
     }
 
-    #[Route('/partido/{id}', name: 'borrar_partido', methods: ['DELETE'])]
+    #[Route('/admin/partido/{id}', name: 'borrar_partido', methods: ['DELETE'])]
     public function borrarPartido(Request $request, ManagerRegistry $doctrine,): Response
     {
         $id = $request->get('id');
@@ -265,7 +264,7 @@ class PruebaController extends AbstractController
         $entityManager->remove($partido);
 
         $entityManager->flush();
-        return $this->redirect('/pruebaAdmin#partidos');
+        return $this->redirect('/admin#partidos');
     }
 
     #[Route('/admin/peticion/{id}/aprobar', name: 'aprobar_peticion_rol', methods: ['POST'])]
@@ -313,7 +312,7 @@ class PruebaController extends AbstractController
     }
 
 
-    #[Route('/usuario/{id}/{idComp}', name: 'borrar_competición_usuario', methods: ['PUT'])]
+    #[Route('/admin/usuario/{id}/{idComp}', name: 'borrar_competición_usuario', methods: ['PUT'])]
     public function borrarCompeticionUsuario(Request $request, ManagerRegistry $doctrine,): Response
     {
         $id = $request->get('id');
@@ -325,10 +324,10 @@ class PruebaController extends AbstractController
         $usuario->removeCompeticioneEstadista($competicion);
 
         $entityManager->flush();
-        return $this->redirect('/pruebaAdmin#usuarios');
+        return $this->redirect('/admin#usuarios');
     }
 
-    #[Route('/competicion/new', name: 'crear_competicion', methods: ['POST'])]
+    #[Route('/admin/competicion/new', name: 'crear_competicion', methods: ['POST'])]
     public function crearCompeticion(Request $request, ManagerRegistry $doctrine, TokenStorageInterface $tokenStorage): Response
     {
         $nombre = $request->request->get('nombreCompeticion');
@@ -357,11 +356,11 @@ class PruebaController extends AbstractController
         $tokenStorage->setToken($newToken);
 
 
-        return $this->redirect('/pruebaAdmin#competiciones');
+        return $this->redirect('/admin#competiciones');
 
     }
 
-    #[Route('/competicion/{id}', name: 'ver_competicion', methods: ['GET'])]
+    #[Route('/admin/competicion/{id}', name: 'ver_competicion', methods: ['GET'])]
     public function verCompeticion(Request $request, ManagerRegistry $doctrine): Response
     {
         $id = $request->get('id');
@@ -373,7 +372,7 @@ class PruebaController extends AbstractController
         ]);
     }
 
-    #[Route('/competicion/{id}/edit', name: 'editar_competicion', methods: ['PUT'])]
+    #[Route('/admin/competicion/{id}/edit', name: 'editar_competicion', methods: ['PUT'])]
     public function editarCompeticion(Request $request, ManagerRegistry $doctrine, Competicion $competicion): Response
     {
 
@@ -382,10 +381,10 @@ class PruebaController extends AbstractController
 
         $entityManager = $doctrine->getManager();
         $entityManager->flush();
-        return $this->redirect('/pruebaAdmin#competiciones');
+        return $this->redirect('/admin#competiciones');
     }
 
-    #[Route('/competicion/{id}', name: 'borrar_competicion', methods: ['DELETE'])]
+    #[Route('/admin/competicion/{id}', name: 'borrar_competicion', methods: ['DELETE'])]
     public function borrarCompeticion(Request $request, ManagerRegistry $doctrine,): Response
     {
         $id = $request->get('id');
@@ -393,7 +392,7 @@ class PruebaController extends AbstractController
         $competicion = $entityManager->getRepository(Competicion::class)->find($id);
         $entityManager->remove($competicion);
         $entityManager->flush();
-        return $this->redirect('/pruebaAdmin#competiciones');
+        return $this->redirect('/admin#competiciones');
     }
 }
 

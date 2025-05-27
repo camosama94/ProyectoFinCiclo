@@ -31,11 +31,12 @@
 </button>
 
 <script>
+    $(document).off('click', '.btn-editar-competicion');
     $(document).on('click', '.btn-editar-competicion', function () {
         const id = $(this).data('id');
 
         $.ajax({
-            url: `/competicion/${id}`,
+            url: `/admin/competicion/${id}`,
             method: 'GET',
             success: function (data) {
                 console.log(data.id);
@@ -54,12 +55,13 @@
         });
     });
 
-    $(document).off('click', '.btn-borrar-competicion').on('click', '.btn-borrar-competicion', function () {
+    $(document).off('click', '.btn-borrar-competicion');
+    $(document).on('click', '.btn-borrar-competicion', function () {
         const id = $(this).data('id');
 
         if (confirm("¿Estás seguro de que quieres borrar esta competición?")) {
             $.ajax({
-                url: `/competicion/${id}`,
+                url: `/admin/competicion/${id}`,
                 method: 'DELETE',
                 success: function (data) {
                     $('#btn-competiciones').trigger('click');

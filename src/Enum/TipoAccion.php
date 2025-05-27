@@ -10,6 +10,8 @@ enum TipoAccion: string
     case RD = 'RD'; // Rebote defensivo
     case AS = 'AS'; // Asistencia
     case BL = 'BL'; // Bloqueo
+    case ST = 'ST'; // Robo
+    case TO = 'TO'; // Perdida
     case FC = 'FC'; // Falta cometida
     case FR = 'FR'; // Falta recibida
     case EX = 'EX'; // Expulsión

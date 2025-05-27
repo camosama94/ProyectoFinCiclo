@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <title>Temporizador Estadísticas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Bootstrap JS Bundle (incluye Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <style>
+        body {
+            padding: 2rem;
+        }
+        #timer-btn {
+            font-size: 2rem;
+            width: 200px;
+        }
+        #top-bar {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .jugadores-panel, .acciones-panel {
+            flex: 1;
+        }
+        .acciones-panel {
+            text-align: center;
+            min-width: 250px;
+        }
+        #jugadores-local, #jugadores-visitante {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .jugador-titulo {
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+{% set puntosLocal = partido.puntosLocal %}
+{% set puntosVisitante = partido.puntosVisitante %}
+<div id="top-bar" class="d-flex justify-content-around align-items-center flex-column mb-4">
+    <div class="d-flex justify-content-between w-100 px-5 mb-2">
+        <div id="marcador-local" class="fs-4 fw-bold text-primary">{{ partido.idEquipoLocal.nombre }}: {{ partido.puntosLocal }}</div>
+        <div id="marcador-visitante" class="fs-4 fw-bold text-danger">{{ partido.idEquipoVisitante.nombre }}: {{ partido.puntosVisitante }}</div>
+    </div>
+    {% set base = date('1970-01-01 00:00:00') %}
+    {% set ultima = acciones|last %}
+    {% if ultima and ultima.minuto %}
+        {% set diff = ultima.minuto.diff(base) %}
+        {% set segundosTotales = diff.h * 3600 + diff.i * 60 + diff.s %}
+
+        {% if segundosTotales < 2400 %}
+            {# Cuartos normales de 10 minutos #}
+            {% set cuarto = (segundosTotales // 600) + 1 %}
+            {% set segundosDesdeInicioDelCuarto = segundosTotales % 600 %}
+            {% set segundosRestantes = 600 - segundosDesdeInicioDelCuarto %}
+        {% else %}
+            {# Prórroga de 5 minutos #}
+            {% set cuarto = 5 + ((segundosTotales - 2400) // 300) %}
+            {% set segundosDesdeInicioDelCuarto = (segundosTotales - 2400) % 300 %}
+            {% set segundosRestantes = 300 - segundosDesdeInicioDelCuarto %}
+        {% endif %}
+
+        {% set minutos = segundosRestantes // 60 %}
+        {% set segundos = segundosRestantes % 60 %}
+        {% set tiempoFormateado = '%02d:%02d'|format(minutos, segundos) %}
+    {% else %}
+        {% set tiempoFormateado = '10:00' %}
+    {% endif %}
+
+
+
+    <button id="timer-btn" class="btn btn-primary">
+        {{ tiempoFormateado }}
+    </button>
+
+    <div class="d-flex justify-content-center gap-2 m-2">
+        <button id="btnMas" class="btn btn-success">+1s</button>
+        <button id="btnMenos" class="btn btn-success">-1s</button>
+    </div>
+
+    {% set base = date('1970-01-01 00:00:00') %}
+    {% set ultima = acciones|last %}
+    {% if ultima and ultima.minuto %}
+        {% set diff = ultima.minuto.diff(base) %}
+        {% set segundosTotales = diff.h * 3600 + diff.i * 60 + diff.s %}
+
+        {% if segundosTotales < 2400 %}
+            {% set currentQuarter = (segundosTotales // 600) + 1 %}
+        {% else %}
+            {% set currentQuarter = 5 + ((segundosTotales - 2400) // 300) %}
+        {% endif %}
+    {% else %}
+        {% set currentQuarter = 1 %}
+    {% endif %}
+
+    <div id="quarter-info">Cuarto: 1 / 4</div>
+</div>
+
+
+<div class="d-flex justify-content-between mb-4">
+
+    <!-- Panel Equipo Local -->
+    <div class="jugadores-panel" id="jugadores-local">
+        <div class="jugador-titulo">{{ partido.idEquipoLocal.nombre }}</div>
+        <div class="d-flex flex-column gap-2 align-items-stretch">
+            {% for jugador in partido.idEquipoLocal.jugadores %}
+                {% set statJugador = null %}
+                {% for stat in stats %}
+                    {% if stat.idJugador.id == jugador.id %}
+                        {% set statJugador = stat %}
+
+                    {% endif %}
+                {% endfor %}
+
+                <button type="button" class="btn btn-outline-primary btn-jugador w-100 d-flex justify-content-between align-items-center" data-id="{{ jugador.id }}" data-equipo="local"{% if statJugador and statJugador.faltasCom == 5 %} disabled {% endif %}>
+                    {{ jugador.dorsal }} - {{ jugador.nombre }}
+
+                    {% if statJugador %}
+                        <div class="badge bg-warning faltas">{{ statJugador.faltasCom }}</div>
+                    {% endif %}
+                </button>
+            {% endfor %}
+
+        </div>
+    </div>
+
+    <!-- Panel Acciones -->
+    <div class="acciones-panel" data-partido="{{ partido.id }}">
+        <div class="mb-3">
+            <h5>Acciones</h5>
+            <div id="acciones" class="d-flex flex-wrap gap-2 justify-content-center">
+                <div id="acciones" class="d-flex flex-wrap gap-2 justify-content-center">
+
+                    <!-- Tiros anotados -->
+                    <button type="button" class="btn btn-success accion" data-tipo="TA" data-valor="1">+1 Punto</button>
+                    <button type="button" class="btn btn-success accion" data-tipo="TA" data-valor="2">+2 Puntos</button>
+                    <button type="button" class="btn btn-success accion" data-tipo="TA" data-valor="3">+3 Puntos</button>
+
+                    <!-- Tiros fallados -->
+                    <button type="button" class="btn btn-danger accion" data-tipo="TF" data-valor="1">Tiro libre fallado</button>
+                    <button type="button" class="btn btn-danger accion" data-tipo="TF" data-valor="2">Tiro 2 fallado</button>
+                    <button type="button" class="btn btn-danger accion" data-tipo="TF" data-valor="3">Tiro 3 fallado</button>
+
+                    <!-- Rebotes -->
+                    <button type="button" class="btn btn-info accion" data-tipo="RO" data-valor="1">Rebote Ofensivo</button>
+                    <button type="button" class="btn btn-info accion" data-tipo="RD" data-valor="1">Rebote Defensivo</button>
+
+                    <!-- Asistencia -->
+                    <button type="button" class="btn btn-primary accion" data-tipo="AS" data-valor="1">Asistencia</button>
+
+                    <!-- Bloqueo -->
+                    <button type="button" class="btn btn-secondary accion" data-tipo="BL" data-valor="1">Tapon</button>
+
+                    <!-- Robo/Perdida -->
+                    <button type="button" class="btn btn-secondary accion" data-tipo="ST" data-valor="1">Robo</button>
+                    <button type="button" class="btn btn-secondary accion" data-tipo="TO" data-valor="1">Perdida</button>
+
+                    <!-- Faltas -->
+                    <button type="button" class="btn btn-warning accion" data-tipo="FC" data-valor="1">Falta Cometida</button>
+                    <button type="button" class="btn btn-warning accion" data-tipo="FR" data-valor="1">Falta Recibida</button>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel Equipo Visitante -->
+    <div class="jugadores-panel" id="jugadores-visitante">
+        <div class="jugador-titulo">{{ partido.idEquipoVisitante.nombre }}</div>
+        <div class="d-flex flex-column gap-2 align-items-stretch">
+            {% for jugador in partido.idEquipoVisitante.jugadores %}
+                <button type="button" class="btn btn-outline-danger btn-jugador w-100 d-flex justify-content-between align-items-center" data-id="{{ jugador.id }}" data-equipo="visitante">
+                    {{ jugador.nombre }}
+                    {% for stat in stats %}
+                        {% if stat.idJugador.id == jugador.id %}
+                            <div class="badge bg-warning faltas">{{ stat.faltasCom }}</div>
+                        {% endif %}
+                    {% endfor %}
+                </button>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Historial -->
+<div class="container my-4">
+    <ul class="nav nav-tabs" id="historialTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link tab-boton active " id="tab1-tab" data-bs-toggle="tab" data-bs-target="#tab1"
+                    type="button" role="tab" aria-controls="tab1" aria-selected="true">1º Cuarto</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link tab-boton" id="tab2-tab" data-bs-toggle="tab" data-bs-target="#tab2"
+                    type="button" role="tab" aria-controls="tab2" aria-selected="false">2º Cuarto</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link tab-boton" id="tab3-tab" data-bs-toggle="tab" data-bs-target="#tab3"
+                    type="button" role="tab" aria-controls="tab3" aria-selected="false">3º Cuarto</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link tab-boton" id="tab4-tab" data-bs-toggle="tab" data-bs-target="#tab4"
+                    type="button" role="tab" aria-controls="tab4" aria-selected="false">4º Cuarto</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link tab-boton" id="tab5-tab" data-bs-toggle="tab" data-bs-target="#tab5"
+                    type="button" role="tab" aria-controls="tab5" aria-selected="false">Prórroga</button>
+        </li>
+    </ul>
+
+    <div class="tab-content border border-top-0 p-3" id="historialContent" style="height: 300px; overflow-y: auto;">
+        <div class="tab-pane fade show active" id="tab1" role="tabpanel" aria-labelledby="tab1-tab">
+            <ul class="list-group" id="historial-cuarto-1">
+                {% for accion in acciones %}
+                    {% if accion.minuto and accion.minuto|date('H:i:s') < '00:10:00' %}
+                    <li class="list-group-item">{{ accion.idJugador.nombre }} -> {{ accion.tipoDeAccion.value}}{{ accion.valor}} </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="tab-pane fade" id="tab2" role="tabpanel" aria-labelledby="tab2-tab">
+            <ul class="list-group" id="historial-cuarto-2">
+                {% for accion in acciones %}
+                    {% if accion.minuto and accion.minuto|date('H:i:s') >= '00:10:00' and accion.minuto|date('H:i:s') < '00:20:00' %}
+                        <li class="list-group-item">{{ accion.idJugador.nombre }} -> {{ accion.tipoDeAccion.value}}{{ accion.valor}} </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="tab-pane fade" id="tab3" role="tabpanel" aria-labelledby="tab3-tab">
+            <ul class="list-group" id="historial-cuarto-3">
+                {% for accion in acciones %}
+                    {% if accion.minuto and accion.minuto|date('H:i:s') >= '00:20:00' and accion.minuto|date('H:i:s') < '00:30:00' %}
+                        <li class="list-group-item">{{ accion.idJugador.nombre }} -> {{ accion.tipoDeAccion.value}}{{ accion.valor}} </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="tab-pane fade" id="tab4" role="tabpanel" aria-labelledby="tab4-tab">
+            <ul class="list-group" id="historial-cuarto-4">
+                {% for accion in acciones %}
+                    {% if accion.minuto and accion.minuto|date('H:i:s') >= '00:30:00' and accion.minuto|date('H:i:s') < '00:40:00' %}
+                        <li class="list-group-item">{{ accion.idJugador.nombre }} -> {{ accion.tipoDeAccion.value}}{{ accion.valor}} </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="tab-pane fade" id="tab5" role="tabpanel" aria-labelledby="tab5-tab">
+            <ul class="list-group" id="historial-prorroga">
+                {% for accion in acciones %}
+                    {% if accion.minuto and accion.minuto|date('H:i:s') >= '00:40:00' %}
+                        <li class="list-group-item">{{ accion.idJugador.nombre }} -> {{ accion.tipoDeAccion.value}}{{ accion.valor}} </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    let jugadorSeleccionado = null;
+    let puntosLocal = {{ puntosLocal }};
+    let puntosVisitante = {{ puntosVisitante }};
+    const duracionCuarto = 600;
+    const duracionProrroga = 300;
+    let tiempo = 0;
+
+    const partidoId = document.querySelector('.acciones-panel').dataset.partido;
+
+
+    document.querySelectorAll('.btn-jugador').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.btn-jugador').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            jugadorSeleccionado = {
+                id: btn.dataset.id,
+                nombre: btn.textContent.trim(),
+                equipo: btn.dataset.equipo,
+            };
+        });
+    });
+
+    document.querySelectorAll('.accion').forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (!jugadorSeleccionado) {
+                alert('Por favor, selecciona un jugador primero.');
+                return;
+            }
+
+            const tipo = btn.dataset.tipo; // Ej: TA, TF, etc.
+            const valor = btn.dataset.valor || '';
+
+            console.log(valor)
+            console.log(jugadorSeleccionado.id)
+
+
+            agregarAccionAlHistorial(jugadorSeleccionado, tipo, valor, currentQuarter);
+
+
+            if (tipo === 'TA') {
+                const puntos = parseInt(valor);
+                if (jugadorSeleccionado.equipo === 'local') {
+                    puntosLocal += puntos;
+                    document.getElementById('marcador-local').textContent = `{{ partido.idEquipoLocal.nombre }}: ${puntosLocal}`;
+                } else {
+                    puntosVisitante += puntos;
+                    document.getElementById('marcador-visitante').textContent = `{{ partido.idEquipoVisitante.nombre }}: ${puntosVisitante}`;
+                }
+            }
+
+            if(tipo === 'FC'){
+                const botonActivo = document.querySelector('.btn-jugador.active');
+
+                let divFaltas = botonActivo.querySelector('.faltas')
+                let faltas = parseInt(divFaltas.textContent) + 1
+
+                divFaltas.textContent = faltas;
+
+                if(faltas === 5){
+                    botonActivo.classList.remove('active');
+                    botonActivo.disabled = true;
+                    jugadorSeleccionado = null;
+                }
+            }
+
+            let esProrroga = currentQuarter > 4;
+
+            if (esProrroga) {
+                // Cuartos 1-4: 4 * 600 = 2400
+                // Cada prórroga suma 300
+                let prorrogaNumero = currentQuarter - 4;
+                tiempo = (4 * duracionCuarto) + ((prorrogaNumero - 1) * duracionProrroga) + (duracionProrroga - timeLeft);
+            } else {
+                tiempo = ((currentQuarter - 1) * duracionCuarto) + (duracionCuarto - timeLeft);
+            }
+
+
+            // ✅ Petición AJAX usando fetch
+            fetch(`/estadisticas/${partidoId}/${tipo}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    jugador_id: jugadorSeleccionado.id,
+                    valor: valor,
+                    tiempo: tiempo
+                }),
+                credentials: 'same-origin'
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Error al registrar la acción');
+                return response.json();
+            })
+            .then(data => {
+                console.log('Acción registrada:', data);
+            })
+            .catch(error => {
+                alert('Hubo un error al registrar la acción.');
+                console.error(error);
+            });
+        });
+    });
+
+    // === Temporizador ===
+    const btn = document.getElementById('timer-btn');
+    const quarterInfo = document.getElementById('quarter-info');
+    const btnAdd = document.getElementById('btnMas');
+    const btnSubtract = document.getElementById('btnMenos');
+
+    const tiempoFormateado = "{{ tiempoFormateado }}";
+    const [minutos, segundos] = tiempoFormateado.split(":").map(Number);
+
+    let totalQuarters = 4;
+    let currentQuarter = {{ currentQuarter }};
+    let isRunning = false;
+    let timer = null;
+    let timeLeft = (minutos * 60) + segundos;
+
+    function formatTime(seconds) {
+        const min = Math.floor(seconds / 60).toString().padStart(2, '0');
+        const sec = (seconds % 60).toString().padStart(2, '0');
+        return `${min}:${sec}`;
+    }
+
+    function updateDisplay() {
+        btn.textContent = formatTime(timeLeft);
+        quarterInfo.textContent = `Cuarto: ${currentQuarter} / ${totalQuarters}`;
+    }
+
+    function tick() {
+        if (timeLeft > 0) {
+            timeLeft--;
+            updateDisplay();
+        } else {
+            clearInterval(timer);
+            isRunning = false;
+            btn.classList.remove('btn-danger');
+            btn.classList.add('btn-primary');
+
+            if (currentQuarter < totalQuarters) {
+                currentQuarter++;
+                timeLeft = 10 * 60; // tiempo normal de un cuarto
+                updateDisplay();
+            } else {
+                // tiempo reglamentario terminado
+                if (puntosLocal !== puntosVisitante) {
+                    btn.textContent = "Finalizado";
+                    quarterInfo.textContent = `Partido terminado`;
+                    const todosLosBotones = document.querySelectorAll("button");
+                    todosLosBotones.forEach(boton => {
+                        if (!boton.classList.contains('tab-boton')) {
+                            boton.disabled = true;
+                        }
+                    });
+
+
+                    fetch(`/estadisticas/${partidoId}/finalizar/`, {
+                        method: 'PUT',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Content-Type': 'application/json'
+                        },
+                        credentials: 'same-origin'
+                    })
+                        .then(response => {
+                            if (response.ok) {
+                                console.log("Partido finalizado correctamente");
+                                // Aquí puedes llamar a la lógica para desactivar botones, etc.
+                            } else {
+                                console.error(response);
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Error en la petición:", error);
+                        });
+
+                    return;
+                } else {
+                    // empate, prórroga
+                    currentQuarter++;  // añadir 1 al cuarto para la prórroga
+                    timeLeft = 5 * 60; // tiempo de prórroga
+                    updateDisplay();
+                }
+            }
+        }
+    }
+
+    function agregarAccionAlHistorial(jugadorSeleccionado, tipo, valor, currentQuarter) {
+        // Mapear el cuarto a su id correspondiente
+        const idsMap = {
+            1: 'historial-cuarto-1',
+            2: 'historial-cuarto-2',
+            3: 'historial-cuarto-3',
+            4: 'historial-cuarto-4',
+            5: 'historial-prorroga'
+        };
+
+        // Elegir el id según currentQuarter, si es >4 se considera prórroga
+        let key = currentQuarter <= 4 ? currentQuarter : 5;
+        const ulHistorial = document.getElementById(idsMap[key]);
+
+        if (!ulHistorial) {
+            console.error('No se encontró el contenedor para el historial del cuarto:', key);
+            return;
+        }
+
+        const textoValor = valor ? ` (${valor})` : '';
+        const li = document.createElement('li');
+        li.className = 'list-group-item';
+        li.textContent = `${jugadorSeleccionado.nombre} -> ${tipo}${textoValor}`;
+
+        ulHistorial.appendChild(li);
+    }
+
+
+
+    btn.addEventListener('click', () => {
+        if (isRunning) {
+            clearInterval(timer);
+            isRunning = false;
+            btn.classList.remove('btn-danger');
+            btn.classList.add('btn-primary');
+        } else {
+            timer = setInterval(tick, 1000);
+            isRunning = true;
+            btn.classList.remove('btn-primary');
+            btn.classList.add('btn-danger');
+        }
+    });
+
+    btnAdd.addEventListener('click', () => {
+        if(timeLeft < 600)
+        timeLeft += 1;
+        updateDisplay();
+    });
+
+    btnSubtract.addEventListener('click', () => {
+        timeLeft = Math.max(0, timeLeft - 60);
+        updateDisplay();
+    });
+
+    updateDisplay();
+</script>
+

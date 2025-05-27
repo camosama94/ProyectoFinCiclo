@@ -44,7 +44,9 @@ security:
     access_control:
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/register, roles: PUBLIC_ACCESS }
-        - { path: ^/pruebaAdmin, roles: ROLE_ADMIN_LIGA }
+        - { path: ^/admin, roles: ROLE_ADMIN_LIGA }
+        - { path: ^/estadisticas/.*, roles: ROLE_STATS }
+        - { path: ^/usuario/.*, roles: ROLE_USER }
         - { path: ^/, roles: ROLE_USER }
 
 when@test:

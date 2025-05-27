@@ -1,0 +1,92 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    {% for mensaje in app.flashes('error') %}
+        <div class="alert alert-danger">{{ mensaje }}</div>
+    {% endfor %}
+    <div class="container mt-4">
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <select id="filtroCompeticion" class="form-select">
+                    <option value="">Todas las competiciones</option>
+                    {% for competicion in competiciones %}
+                        <option value="{{ competicion.id }}">{{ competicion.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="row" id="contenedor-partidos">
+            {% for partido in partidos %}
+                <div class="col-md-6 mb-4 card-partido" data-competicion="{{ partido.competicion.id }}">
+                    <div class="card shadow">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ partido.idEquipoLocal.nombre }} vs {{ partido.idEquipoVisitante.nombre }}</h5>
+                            <p class="card-text">
+                                <strong>Fecha:</strong> {{ partido.fecha|date('d/m/Y H:i') }}<br>
+                                <strong>Lugar:</strong> {{ partido.localizacion }}<br>
+                                <strong>Competición:</strong> {{ partido.competicion.nombre }}
+                            </p>
+                            <a class="btn btn-secondary"  href="">Ver Estadisticas</a>
+                            {% if 'ROLE_STATS' in app.user.roles and partido.idUsuario.id == app.user.id %}
+                                        <a class="btn btn-secondary" href="{{ path('ruta_hacer_stats', { 'idPartido': partido.id }) }}">Hacer estadísticas</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div id="loader" class="text-center my-4">
+            <div class="spinner-border text-primary" role="status"></div>
+        </div>
+    </div>
+
+    <script>
+        const competicionSelect = document.getElementById('filtroCompeticion');
+        const contenedor = document.getElementById('contenedor-partidos');
+        const loader = document.getElementById('loader');
+
+        let offset = 4; // número inicial de partidos mostrados
+        const limit = 4; // cuántos más cargar cada vez
+        let cargando = false;
+        let ultimaCompeticion = '';
+
+        function filtrarYMostrar() {
+            const seleccionada = competicionSelect.value;
+            const cards = document.querySelectorAll('.card-partido');
+
+            let visibles = 0;
+            cards.forEach((card, index) => {
+                const compId = card.getAttribute('data-competicion');
+                const mostrar = (!seleccionada || compId === seleccionada) && index < offset;
+
+                card.style.display = mostrar ? 'block' : 'none';
+                if (mostrar) visibles++;
+            });
+
+            loader.style.display = visibles < offset ? 'none' : 'block';
+        }
+
+        competicionSelect.addEventListener('change', () => {
+            offset = 4;
+            ultimaCompeticion = competicionSelect.value;
+            filtrarYMostrar();
+        });
+
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting && !cargando) {
+                cargando = true;
+                setTimeout(() => {
+                    offset += limit;
+                    filtrarYMostrar();
+                    cargando = false;
+                }, 500); // simulación de carga
+            }
+        });
+
+        observer.observe(loader);
+
+        document.addEventListener('DOMContentLoaded', filtrarYMostrar);
+    </script>
+{% endblock %}
