@@ -2,7 +2,7 @@
 
 FROM php:8.2-fpm
 
-# Instalar dependencias de sistema necesarias para Symfony y Composer
+# Instalar dependencias necesarias
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
@@ -14,30 +14,32 @@ RUN apt-get update && apt-get install -y \
     curl \
     && docker-php-ext-install intl pdo pdo_mysql zip xml opcache
 
-# Instalar Composer (global)
+# Instalar Composer globalmente
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Crear un usuario no root
+# Instalar Symfony CLI para que symfony-cmd funcione
+RUN curl -sS https://get.symfony.com/cli/installer | bash && \
+    mv /root/.symfony5/bin/symfony /usr/local/bin/symfony
+
+# Crear usuario no root
 RUN useradd -ms /bin/bash appuser
 
 WORKDIR /app
 
-# Copiar composer.json y composer.lock primero para aprovechar cache de Docker
-COPY composer.json composer.lock ./
-
-# Instalar dependencias PHP sin ejecutar scripts y sin dev
-RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
-
-# Copiar el resto de la app
-COPY . .
-
-# Cambiar permisos al usuario no root
-RUN chown -R appuser:appuser /app
-
+# Cambiar a usuario no root antes de copiar e instalar dependencias
 USER appuser
 
-# Puerto que exponemos (Fly.io espera el puerto configurado en fly.toml)
+# Copiar composer files con permisos adecuados
+COPY --chown=appuser:appuser composer.json composer.lock ./
+
+# Instalar dependencias con scripts habilitados
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
+# Copiar el resto del proyecto con permisos
+COPY --chown=appuser:appuser . .
+
 EXPOSE 8080
 
-# Para modo desarrollo (puedes cambiar por php-fpm o nginx en producción)
+# Arrancar servidor PHP integrado apuntando a la carpeta public
 CMD ["php", "-S", "0.0.0.0:8080", "-t", "public"]
+
