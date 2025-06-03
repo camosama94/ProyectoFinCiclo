@@ -8,40 +8,47 @@ RUN apt-get update && apt-get install -y \
     git unzip zip libicu-dev libonig-dev libxml2-dev libzip-dev curl \
     && docker-php-ext-install intl pdo pdo_mysql zip xml opcache
 
-# Instalar composer
+# Instalar Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
 
-# Copiar solo composer para usar cache de dependencias
+# Copiar composer.* para usar la caché de dependencias
 COPY composer.json composer.lock ./
 
-# Instalar dependencias, scripts se ejecutan OK porque no falta bin/console (aún no copiado todo)
-RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+# Permitir Composer como root y evitar errores de scripts
+ENV COMPOSER_ALLOW_SUPERUSER=1
 
-# Copiar resto del código
+# Instalar dependencias SIN ejecutar scripts (evitamos errores por symfony-cmd)
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-scripts
+
+# Copiar el resto del código del proyecto
 COPY . .
 
-# Ejecutar scripts post-install (ejemplo: cache:clear)
-RUN composer run-script post-install-cmd
+# (Opcional) Ejecutar manualmente scripts si ya tienes bin/console listo y funciona:
+# RUN php bin/console cache:clear
 
 # Stage 2: imagen final ligera para producción
 FROM php:8.2-fpm
 
-RUN apt-get update && apt-get install -y libicu-dev libonig-dev libxml2-dev libzip-dev \
+RUN apt-get update && apt-get install -y \
+    libicu-dev libonig-dev libxml2-dev libzip-dev \
     && docker-php-ext-install intl pdo pdo_mysql zip xml opcache
 
 WORKDIR /app
 
-# Copiar solo la carpeta vendor y el código necesario desde la etapa build
+# Copiar el código ya procesado desde la etapa build
 COPY --from=build /app /app
 
-# Crear usuario no root para correr la app
-RUN useradd -ms /bin/bash appuser
-RUN chown -R appuser:appuser /app
+# Crear un usuario no root para ejecutar la app
+RUN useradd -ms /bin/bash appuser \
+    && chown -R appuser:appuser /app
 
 USER appuser
 
+# Puerto de la app para Fly.io
 EXPOSE 8080
 
+# Ejecutar servidor embebido de PHP apuntando a la carpeta public
 CMD ["php", "-S", "0.0.0.0:8080", "-t", "public"]
+
