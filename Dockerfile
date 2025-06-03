@@ -26,7 +26,7 @@ WORKDIR /app
 COPY composer.json composer.lock ./
 
 # Instalar dependencias PHP sin ejecutar scripts y sin dev
-RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction --prefer-dist
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
 # Copiar el resto de la app
 COPY . .
