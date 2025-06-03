@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Estadísticas del Partido</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .equipo-nombre {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .jugador-estadisticas th, .jugador-estadisticas td {
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="bg-light">
+<div class="container py-5">
+    <h1 class="text-center mb-4">Estadísticas del Partido</h1>
+
+    <!-- Información General -->
+    <div class="row mb-4">
+        <div class="col-md-6 text-center">
+            <div class="equipo-nombre">{{ partido.idEquipoLocal.nombre }}</div>
+            <div class="fs-3">{{ partido.puntosLocal }}</div>
+        </div>
+        <div class="col-md-6 text-center">
+            <div class="equipo-nombre">{{ partido.idEquipoVisitante.nombre }}</div>
+            <div class="fs-3">{{ partido.puntosVisitante }}</div>
+        </div>
+    </div>
+
+    <!-- Estadísticas por Jugador -->
+    <div class="row">
+        <div class="col-md-12">
+            <h3>Estadísticas {{ partido.idEquipoLocal.nombre }}</h3>
+            <table class="table table-striped table-bordered jugador-estadisticas">
+                <thead class="table-dark">
+                <tr>
+                    <th>Dorsal</th>
+                    <th>Jugador</th>
+                    <th>PTS</th>
+                    <th>2P</th>
+                    <th>%2</th>
+                    <th>3P</th>
+                    <th>%3</th>
+                    <th>TL</th>
+                    <th>%1</th>
+                    <th>REB OF</th>
+                    <th>REB DEF</th>
+                    <th>AST</th>
+                    <th>TAP</th>
+                    <th>ROB</th>
+                    <th>PER</th>
+                    <th>F.COM</th>
+                    <th>F.REC</th>
+                </tr>
+                </thead>
+                {% set totalPuntos = 0 %}
+                {% set totalTiros2Int = 0 %}
+                {% set totalTiros2An = 0 %}
+                {% set totalTiros3Int = 0 %}
+                {% set totalTiros3An = 0 %}
+                {% set totalTiros1Int = 0 %}
+                {% set totalTiros1An = 0 %}
+                {% set totalRebOf = 0 %}
+                {% set totalRebDef = 0 %}
+                {% set totalAsi = 0 %}
+                {% set totalTap = 0 %}
+                {% set totalRob = 0 %}
+                {% set totalPer = 0 %}
+                {% set totalFC = 0 %}
+                {% set totalFR = 0 %}
+                <tbody>
+                {% for jugador in estadisticas %}
+                    {% if jugador.idJugador.idEquipo == partido.idEquipoLocal %}
+                    <tr>
+                        <td>{{ jugador.idJugador.dorsal }}</td>
+                        <td>{{ jugador.idJugador.nombre }}</td>
+                        <td>{{ jugador.puntos }}</td>{% set totalPuntos = totalPuntos + jugador.puntos %}
+                        <td>{{ jugador.tiros2Anot }}/{{ jugador.tiros2Int }}</td>{% set totalTiros2An = totalTiros2An + jugador.tiros2Anot %}{% set totalTiros2Int = totalTiros2Int + jugador.tiros2Int %}
+                        {% if jugador.tiros2Int > 0 %}
+                            <td>{{ (jugador.tiros2Anot * 100 / jugador.tiros2Int)|number_format(1) }}%</td>
+                        {% else %}
+                            <td>0%</td>
+                        {% endif %}
+                        <td>{{ jugador.tiros3Anot }}/{{ jugador.tiros3Int }}</td>{% set totalTiros3An = totalTiros3An + jugador.tiros3Anot %}{% set totalTiros3Int = totalTiros3Int + jugador.tiros3Int %}
+                        {% if jugador.tiros3Int > 0 %}
+                            <td>{{ (jugador.tiros3Anot * 100 / jugador.tiros3Int)|number_format(1) }}%</td>
+                        {% else %}
+                            <td>0%</td>
+                        {% endif %}
+                        <td>{{ jugador.tiros1Anot }}/{{ jugador.tiros1Int }}</td>{% set totalTiros1An = totalTiros1An + jugador.tiros1Anot %}{% set totalTiros1Int = totalTiros1Int + jugador.tiros1Int %}
+                        {% if jugador.tiros1Int > 0 %}
+                            <td>{{ (jugador.tiros1Anot * 100 / jugador.tiros1Int)|number_format(1) }}%</td>
+                        {% else %}
+                            <td>0%</td>
+                        {% endif %}
+                        <td>{{ jugador.reboteOf }}</td>{% set totalRebOf = totalRebOf + jugador.reboteOf %}
+                        <td>{{ jugador.reboteDef }}</td>{% set totalRebDef = totalRebDef + jugador.reboteDef %}
+                        <td>{{ jugador.asistencias }}</td>{% set totalAsi = totalAsi + jugador.asistencias %}
+                        <td>{{ jugador.tapones }}</td>{% set totalTap = totalTap + jugador.tapones %}
+                        <td>{{ jugador.robos }}</td>{% set totalRob = totalRob + jugador.robos %}
+                        <td>{{ jugador.perdidas }}</td>{% set totalPer = totalPer + jugador.perdidas %}
+                        <td>{{ jugador.faltasCom }}</td>{% set totalFC = totalFC + jugador.faltasCom %}
+                        <td>{{ jugador.faltasRec }}</td>{% set totalFR = totalFR + jugador.faltasRec %}
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td></td>
+                        <td>Totales</td>
+                        <td>{{ totalPuntos }}</td>
+                        <td>{{ totalTiros2An }}/{{ totalTiros2Int }}</td>
+                        {% if totalTiros2An > 0 %}
+                            <td>{{ (totalTiros2An * 100 / totalTiros2Int)|number_format(1) }}%</td>
+                        {% else %}
+                            <td>0%</td>
+                        {% endif %}
+                        <td>{{ totalTiros3An }}/{{ totalTiros3Int }}</td>
+                        {% if totalTiros3An > 0 %}
+                            <td>{{ (totalTiros3An * 100 / totalTiros3Int)|number_format(1) }}%</td>
+                        {% else %}
+                            <td>0%</td>
+                        {% endif %}
+                        <td>{{ totalTiros1An }}/{{ totalTiros1Int }}</td>
+                        {% if totalTiros1An > 0 %}
+                            <td>{{ (totalTiros1An * 100 / totalTiros1Int)|number_format(1) }}%</td>
+                        {% else %}
+                            <td>0%</td>
+                        {% endif %}
+                        <td>{{ totalRebOf }}</td>
+                        <td>{{ totalRebDef }}</td>
+                        <td>{{ totalAsi }}</td>
+                        <td>{{ totalTap }}</td>
+                        <td>{{ totalRob }}</td>
+                        <td>{{ totalPer }}</td>
+                        <td>{{ totalFC }}</td>
+                        <td>{{ totalFR }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <h3>Estadísticas {{ partido.idEquipoVisitante.nombre }}</h3>
+            <table class="table table-striped table-bordered jugador-estadisticas">
+                <thead class="table-dark">
+                <tr>
+                    <th>Dorsal</th>
+                    <th>Jugador</th>
+                    <th>PTS</th>
+                    <th>2P</th>
+                    <th>%2</th>
+                    <th>3P</th>
+                    <th>%3</th>
+                    <th>TL</th>
+                    <th>%1</th>
+                    <th>REB OF</th>
+                    <th>REB DEF</th>
+                    <th>AST</th>
+                    <th>TAP</th>
+                    <th>ROB</th>
+                    <th>PER</th>
+                    <th>F.COM</th>
+                    <th>F.REC</th>
+                </tr>
+                </thead>
+                {% set totalPuntos = 0 %}
+                {% set totalTiros2Int = 0 %}
+                {% set totalTiros2An = 0 %}
+                {% set totalTiros3Int = 0 %}
+                {% set totalTiros3An = 0 %}
+                {% set totalTiros1Int = 0 %}
+                {% set totalTiros1An = 0 %}
+                {% set totalRebOf = 0 %}
+                {% set totalRebDef = 0 %}
+                {% set totalAsi = 0 %}
+                {% set totalTap = 0 %}
+                {% set totalRob = 0 %}
+                {% set totalPer = 0 %}
+                {% set totalFC = 0 %}
+                {% set totalFR = 0 %}
+                <tbody>
+                {% for jugador in estadisticas %}
+                    {% if jugador.idJugador.idEquipo == partido.idEquipoVisitante %}
+                        <tr>
+                        <td>{{ jugador.idJugador.dorsal }}</td>
+                        <td>{{ jugador.idJugador.nombre }}</td>
+                        <td>{{ jugador.puntos }}</td>{% set totalPuntos = totalPuntos + jugador.puntos %}
+                        <td>{{ jugador.tiros2Anot }}/{{ jugador.tiros2Int }}</td>{% set totalTiros2An = totalTiros2An + jugador.tiros2Anot %}{% set totalTiros2Int = totalTiros2Int + jugador.tiros2Int %}
+                        {% if jugador.tiros2Int > 0 %}
+                            <td>{{ (jugador.tiros2Anot * 100 / jugador.tiros2Int)|number_format(1) }}%</td>
+                        {% else %}
+                            <td>0%</td>
+                        {% endif %}
+                        <td>{{ jugador.tiros3Anot }}/{{ jugador.tiros3Int }}</td>{% set totalTiros3An = totalTiros3An + jugador.tiros3Anot %}{% set totalTiros3Int = totalTiros3Int + jugador.tiros3Int %}
+                        {% if jugador.tiros3Int > 0 %}
+                            <td>{{ (jugador.tiros3Anot * 100 / jugador.tiros3Int)|number_format(1) }}%</td>
+                        {% else %}
+                            <td>0%</td>
+                        {% endif %}
+                        <td>{{ jugador.tiros1Anot }}/{{ jugador.tiros1Int }}</td>{% set totalTiros1An = totalTiros1An + jugador.tiros1Anot %}{% set totalTiros1Int = totalTiros1Int + jugador.tiros1Int %}
+                        {% if jugador.tiros1Int > 0 %}
+                            <td>{{ (jugador.tiros1Anot * 100 / jugador.tiros1Int)|number_format(1) }}%</td>
+                        {% else %}
+                            <td>0%</td>
+                        {% endif %}
+                        <td>{{ jugador.reboteOf }}</td>{% set totalRebOf = totalRebOf + jugador.reboteOf %}
+                        <td>{{ jugador.reboteDef }}</td>{% set totalRebDef = totalRebDef + jugador.reboteDef %}
+                        <td>{{ jugador.asistencias }}</td>{% set totalAsi = totalAsi + jugador.asistencias %}
+                        <td>{{ jugador.tapones }}</td>{% set totalTap = totalTap + jugador.tapones %}
+                        <td>{{ jugador.robos }}</td>{% set totalRob = totalRob + jugador.robos %}
+                        <td>{{ jugador.perdidas }}</td>{% set totalPer = totalPer + jugador.perdidas %}
+                        <td>{{ jugador.faltasCom }}</td>{% set totalFC = totalFC + jugador.faltasCom %}
+                        <td>{{ jugador.faltasRec }}</td>{% set totalFR = totalFR + jugador.faltasRec %}
+                    {% endif %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+                <tfoot>
+                <tr>
+                    <td></td>
+                    <td>Totales</td>
+                    <td>{{ totalPuntos }}</td>
+                    <td>{{ totalTiros2An }}/{{ totalTiros2Int }}</td>
+                    {% if totalTiros2An > 0 %}
+                        <td>{{ (totalTiros2An * 100 / totalTiros2Int)|number_format(1) }}%</td>
+                    {% else %}
+                        <td>0%</td>
+                    {% endif %}
+                    <td>{{ totalTiros3An }}/{{ totalTiros3Int }}</td>
+                    {% if totalTiros3An > 0 %}
+                        <td>{{ (totalTiros3An * 100 / totalTiros3Int)|number_format(1) }}%</td>
+                    {% else %}
+                        <td>0%</td>
+                    {% endif %}
+                    <td>{{ totalTiros1An }}/{{ totalTiros1Int }}</td>
+                    {% if totalTiros1An > 0 %}
+                        <td>{{ (totalTiros1An * 100 / totalTiros1Int)|number_format(1) }}%</td>
+                    {% else %}
+                        <td>0%</td>
+                    {% endif %}
+                    <td>{{ totalRebOf }}</td>
+                    <td>{{ totalRebDef }}</td>
+                    <td>{{ totalAsi }}</td>
+                    <td>{{ totalTap }}</td>
+                    <td>{{ totalRob }}</td>
+                    <td>{{ totalPer }}</td>
+                    <td>{{ totalFC }}</td>
+                    <td>{{ totalFR }}</td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <!-- Botón volver o exportar -->
+    <div class="mt-4 text-center">
+        <a href="/partidos" class="btn btn-secondary">Volver a la lista de partidos</a>
+        <a href="/estadisticas/{{ partido.id }}/exportar" class="btn btn-outline-primary">Exportar a PDF</a>
+    </div>
+</div>
+</body>
+</html>

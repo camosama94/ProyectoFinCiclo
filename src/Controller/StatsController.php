@@ -64,7 +64,12 @@ class StatsController extends AbstractController
         }
 
         // Validar tipo de acción (en base al enum que tú defines)
-        $tiposPermitidos = ['TA', 'TF', 'RO', 'RD', 'AS', 'BL', 'FC', 'FR', 'EX', 'CA'];
+
+        $tiposPermitidos = array_map(
+            fn(TipoAccion $accion) => $accion->value,
+            TipoAccion::cases()
+        );
+
         if (!in_array($idAccion, $tiposPermitidos)) {
             $this->addFlash('error', 'Tipo de acción no válido.');
             return new JsonResponse(['error' => 'Tipo de acción no válido.'], 400);
@@ -107,4 +112,31 @@ class StatsController extends AbstractController
         return new JsonResponse(['success' => true, 'message' => 'Partido finalizado correctamente.']);
 
     }
+
+    #[Route('/estadisticas/{idAccion}/borrar/', name: 'ruta_borrar_accion', methods: ['DELETE'])]
+    public function borrarAccion(ManagerRegistry $doctrine, int $idAccion): JsonResponse
+    {
+        $accion = $doctrine->getRepository(Accion::class)->find($idAccion);
+
+        if (!$accion) {
+            return new JsonResponse(['success' => false, 'message' => 'Acción no encontrada.'], 404);
+        }
+
+        $partido = $doctrine->getRepository(Partido::class)->find($accion->getIdPartido());
+
+        if($accion->getTipoDeAccion() == TipoAccion::TA){
+            if($accion->getIdJugador()->getIdEquipo()->getId() == $partido->getIdEquipoLocal()->getId()){
+                $partido->setPuntosLocal($partido->getPuntosLocal() - $accion->getValor());
+            }else{
+                $partido->setPuntosVisitante($partido->getPuntosVisitante() - $accion->getValor());
+            }
+        }
+
+        $entityManager = $doctrine->getManager();
+        $entityManager->remove($accion);
+        $entityManager->flush();
+
+        return new JsonResponse(['success' => true, 'message' => 'Acción borrada correctamente.']);
+    }
+
 }

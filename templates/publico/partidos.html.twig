@@ -27,9 +27,13 @@
                                 <strong>Lugar:</strong> {{ partido.localizacion }}<br>
                                 <strong>Competición:</strong> {{ partido.competicion.nombre }}
                             </p>
-                            <a class="btn btn-secondary"  href="">Ver Estadisticas</a>
-                            {% if 'ROLE_STATS' in app.user.roles and partido.idUsuario.id == app.user.id %}
-                                        <a class="btn btn-secondary" href="{{ path('ruta_hacer_stats', { 'idPartido': partido.id }) }}">Hacer estadísticas</a>
+                            {% if partido.isFinalizado %}
+                                <a class="btn btn-info"  href="{{ path('estadisticas_partido', { 'idPartido': partido.id }) }}">Ver Estadisticas</a>
+                            {% endif %}
+                            {% if app.user %}
+                                {% if 'ROLE_STATS' in app.user.roles and partido.idUsuario.id == app.user.id and not partido.isFinalizado %}
+                                            <a class="btn btn-primary" href="{{ path('ruta_hacer_stats', { 'idPartido': partido.id }) }}">Hacer estadísticas</a>
+                                {% endif %}
                             {% endif %}
                         </div>
                     </div>

@@ -18,7 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 
-class PruebaController extends AbstractController
+class AdminController extends AbstractController
 {
     #[Route('/admin', name: 'ruta_admin')]
     public function index(ManagerRegistry $doctrine, Security $security): Response
@@ -193,6 +193,18 @@ class PruebaController extends AbstractController
         $localizacion = $request->request->get('localizacion');
         $idCompeticion = $request->request->get('competicion');
         $competicion = $doctrine->getRepository(Competicion::class)->find($idCompeticion);
+
+        if (count($local->getJugadores()) < 5) {
+            $this->addFlash('error', 'El equipo local debe tener al menos 5 jugadores.');
+            return $this->redirect('/admin#partidos'); // o la ruta desde la que se crea el partido
+        }
+
+        if (count($visitante->getJugadores()) < 5) {
+            $this->addFlash('error', 'El equipo visitante debe tener al menos 5 jugadores.');
+            return $this->redirect('/admin#partidos'); // o la ruta adecuada
+        }
+
+
 
         $partido = new Partido();
         $partido->setIdEquipoLocal($local);

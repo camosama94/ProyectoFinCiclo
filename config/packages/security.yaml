@@ -44,6 +44,8 @@ security:
     access_control:
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/register, roles: PUBLIC_ACCESS }
+        - { path: ^/partidos, roles: PUBLIC_ACCESS }
+        - { path: ^/admin/competicion, roles: ROLE_USER }
         - { path: ^/admin, roles: ROLE_ADMIN_LIGA }
         - { path: ^/estadisticas/.*, roles: ROLE_STATS }
         - { path: ^/usuario/.*, roles: ROLE_USER }

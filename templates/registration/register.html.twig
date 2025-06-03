@@ -34,12 +34,6 @@
                     {{ form_errors(registrationForm.plainPassword) }}
                 </div>
 
-                <div class="mb-3 form-check">
-                    {{ form_widget(registrationForm.agreeTerms, { attr: { class: 'form-check-input', required: true } }) }}
-                    {{ form_label(registrationForm.agreeTerms, null, { label_attr: { class: 'form-check-label' } }) }}
-                    {{ form_errors(registrationForm.agreeTerms) }}
-                </div>
-
                 <div class="d-grid gap-2 mb-3">
                     <button type="submit" class="btn btn-custom btn-lg">
                         Registrarse

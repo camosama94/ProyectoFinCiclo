@@ -29,7 +29,7 @@ class UserController extends AbstractController
         return $this->render('forms/datosUsuario.html.twig',["competiciones"=>$competiciones]);
     }
     #[Route('/usuario/{id}/peticion-rol', name:'request_stats', methods:['POST'])]
-    public function requestStats(int $id, ManagerRegistry $doctrine, Security $security, Request $request): JsonResponse
+    public function requestStats(int $id, ManagerRegistry $doctrine, Security $security, Request $request): Response
     {
         $competicion = $doctrine->getRepository(Competicion::class)->find($request->get('competicion_id'));
 
@@ -56,7 +56,7 @@ class UserController extends AbstractController
         $em->flush();
 
 
-        return new JsonResponse(['success'=>true]);
+        return $this->redirect('/usuario/gestion#datos');
     }
 
 
