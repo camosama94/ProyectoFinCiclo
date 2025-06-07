@@ -396,3 +396,7 @@ fabric.properties
 /web/js/
 
 # End of https://www.toptal.com/developers/gitignore/api/symfony,phpstorm,phpstorm+all,composer,node
+###> phpunit/phpunit ###
+/phpunit.xml
+/.phpunit.cache/
+###< phpunit/phpunit ###

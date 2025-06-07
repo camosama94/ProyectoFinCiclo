@@ -42,4 +42,9 @@ RUN chown -R appuser:appuser /app
 USER appuser
 
 EXPOSE 8080
+
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+ENTRYPOINT ["sh", "/usr/local/bin/docker-entrypoint.sh"]
+
+
 CMD ["php", "-S", "0.0.0.0:8080", "-t", "public"]

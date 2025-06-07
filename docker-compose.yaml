@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      APP_ENV: prod
+      DATABASE_URL: "mysql://symfony:symfony@db:3306/basket?serverVersion=mariadb-10.4.28&charset=utf8mb4"
+    volumes:
+      - .:/app
+
+  db:
+    image: mariadb:10.4.28
+    restart: always
+    environment:
+      MYSQL_DATABASE: basket
+      MYSQL_USER: symfony
+      MYSQL_PASSWORD: symfony
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
