@@ -196,12 +196,12 @@ class AdminController extends AbstractController
 
         if (count($local->getJugadores()) < 5) {
             $this->addFlash('error', 'El equipo local debe tener al menos 5 jugadores.');
-            return $this->redirect('/admin#partidos'); // o la ruta desde la que se crea el partido
+            return $this->redirect('/admin#partidos');
         }
 
         if (count($visitante->getJugadores()) < 5) {
             $this->addFlash('error', 'El equipo visitante debe tener al menos 5 jugadores.');
-            return $this->redirect('/admin#partidos'); // o la ruta adecuada
+            return $this->redirect('/admin#partidos');
         }
 
 
@@ -328,12 +328,20 @@ class AdminController extends AbstractController
     public function borrarCompeticionUsuario(Request $request, ManagerRegistry $doctrine,): Response
     {
         $id = $request->get('id');
+        $admin = $this->getUser();
         $idComp = $request->get('idComp');
         $competicion = $doctrine->getRepository(Competicion::class)->find($idComp);
         $entityManager = $doctrine->getManager();
         $usuario = $entityManager->getRepository(User::class)->find($id);
 
         $usuario->removeCompeticioneEstadista($competicion);
+
+        foreach ($usuario->getPartidos() as $partido) {
+            if ($partido->getCompeticion() === $competicion) {
+                $usuario->removePartido($partido);
+                $partido->setIdUsuario($admin);
+            }
+        }
 
         $entityManager->flush();
         return $this->redirect('/admin#usuarios');
