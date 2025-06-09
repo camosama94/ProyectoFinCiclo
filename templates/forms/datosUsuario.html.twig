@@ -31,7 +31,8 @@
                 {% set hayDisponibles = false %}
                 {% for competicion in competiciones %}
                     {% set yaAsignado = app.user.competicionesEstadista is defined and competicion in app.user.competicionesEstadista %}
-                    {% if not yaAsignado %}
+                    {% set esAdmin = competicion.admin.id == app.user.id %}
+                    {% if not yaAsignado and not esAdmin %}
                         {% set hayDisponibles = true %}
                         <option value="{{ competicion.id }}">{{ competicion.nombre }} - {{ competicion.admin.username }}</option>
                     {% endif %}

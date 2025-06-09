@@ -61,6 +61,8 @@
                 <button class="btn btn-success btn-approve" data-id="{{ peticion.id }}">Aprobar</button>
                 <button class="btn btn-danger btn-reject" data-id="{{ peticion.id }}">Rechazar</button>
             </td>
+            <td>
+            </td>
         </tr>
     {% endfor %}
     </tbody>
@@ -135,10 +137,10 @@
 
         if (confirm("¿Estás seguro de que quieres quitarle el Rol este usuario sobre tu competición?")) {
             $.ajax({
-                url: `/usuario/${id}/${idCompeticion}`,
+                url: `/admin/usuario/${id}/${idCompeticion}`,
                 method: 'PUT',
                 success: function (data) {
-                    $('#btn-partidos').trigger('click');
+                    $('#btn-usuarios').trigger('click');
                     const alerta = $('#alerta-modal-editar');
                     alerta.removeClass('d-none');
                     setTimeout(() => alerta.addClass('d-none'), 3000);

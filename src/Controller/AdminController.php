@@ -344,7 +344,8 @@ class AdminController extends AbstractController
         }
 
         $entityManager->flush();
-        return $this->redirect('/admin#usuarios');
+        return new Response(null, 200);
+
     }
 
     #[Route('/admin/competicion/new', name: 'crear_competicion', methods: ['POST'])]
