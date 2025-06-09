@@ -49,6 +49,7 @@
         <div id="sidebar">
             <a href="#competiciones" id="btn-competiciones" data-url="{{ path('tabla_competiciones') }}" >Competiciones</a>
             <a href="#datos" id="btn-datos" data-url="{{ path('form_datos') }}" >Mis datos</a>
+            <a href="#about" id="btn-about" data-url="{{ path('about') }}" >Sobre Mí</a>
         </div>
 
 
@@ -66,8 +67,8 @@
                     $('#btn-competiciones').trigger('click');
                 } else if (hash === 'datos') {
                     $('#btn-datos').trigger('click');
-                } else if (hash === 'jugadores') {
-                    $('#btn-jugadores').trigger('click');
+                } else if (hash === 'about') {
+                    $('#btn-about').trigger('click');
                 }
 
             }
