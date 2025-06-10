@@ -15,8 +15,8 @@ final class Version20250610182924 extends AbstractMigration
     
     public function up(Schema $schema): void
     {
-        $this->addSql("INSERT INTO `user` (`id`, `email`, `roles`, `password`, `username`) VALUES
-    (6, 'carlos94spain4@gmail.com', '[\"ROLE_USER\",\"ROLE_ADMIN_LIGA\",\"ROLE_STATS\"]', '$2y$13$LgdfpbtH2ScfTMgn.NWN5uLKRaW9TPB1UFuAdt2KBi9Uxv5r7CJbO', 'admin')");
+    $this->addSql('INSERT INTO `user` (`id`, `email`, `roles`, `password`, `username`) VALUES
+    (6, "carlos94spain4@gmail.com", "[\"ROLE_USER\",\"ROLE_ADMIN_LIGA\",\"ROLE_STATS\"]", "$2y$13$0JDd2vQ1RSfBX7O1SKBKwOj5M4nadNP9wcXrE/mw5mHCnbXkm4ENS", "admin")');
 
     $this->addSql("INSERT INTO `competicion` (`id`, `admin_id`, `nombre`) VALUES
     (14, 6, 'Liga ACB')");
