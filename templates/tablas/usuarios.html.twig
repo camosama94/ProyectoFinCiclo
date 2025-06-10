@@ -27,7 +27,9 @@
                 <td>
                     <select name="competicionEstadista{{ usuario.id }}" id="competicionEstadista{{ usuario.id }}">
                         {% for competicion in usuario.competicionesEstadista %}
-                            <option value="{{ competicion.id }}">{{ competicion.nombre }}</option>
+                            {% if competicion in app.user.competiciones %}
+                                <option value="{{ competicion.id }}">{{ competicion.nombre }}</option>
+                            {% endif%}
                         {% endfor %}
                     </select>
                 </td>
